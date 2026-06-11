@@ -1,0 +1,2145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dynam'Event — Le mur interactif qui transforme vos invités en joueurs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Saira+Stencil+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* page */
+    --bg: #0A0A0A;
+    --bg-2: #0d0d0d;
+    --line: #1c1c1c;
+    --line-2: #232323;
+    --text: #F5F5F5;
+    --text-dim: #A0A0A0;
+    --text-faint: #6a6a6a;
+
+    /* brand (UI accents) */
+    --brand-cyan:    #1FA8E0;
+    --brand-magenta: #E91E63;
+    --brand-violet:  #9C27B0;
+    --brand-grad:    linear-gradient(90deg, var(--brand-cyan) 0%, var(--brand-violet) 50%, var(--brand-magenta) 100%);
+    --brand-grad-soft: linear-gradient(90deg, rgba(31,168,224,0.18), rgba(156,39,176,0.18), rgba(233,30,99,0.18));
+
+    /* LED palette — used ONLY for the wall effects */
+    --led-yellow: #FFD700;
+    --led-violet: #B026FF;
+    --led-orange: #FF6B35;
+    --led-pink:   #FF1493;
+    --led-blue:   #00D4FF;
+
+    --shell: 1320px;
+    --gutter: clamp(20px, 4vw, 56px);
+    --display: "Space Grotesk", system-ui, sans-serif;
+    --stencil: "Saira Stencil One", "Space Grotesk", system-ui, sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  ::selection { background: var(--brand-magenta); color: #fff; }
+
+  .shell {
+    width: 100%;
+    max-width: var(--shell);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  h1, h2, h3, h4 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  p { margin: 0; }
+
+  /* ============================================================
+     HEADER  — sticky, fades-in blur background after 80px scroll
+     ============================================================ */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    padding: 16px 0;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background .35s ease, border-color .35s ease, backdrop-filter .35s ease, padding .35s ease;
+  }
+  .site-header.scrolled {
+    background: rgba(10,10,10,0.72);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255,255,255,0.06);
+    padding: 10px 0;
+  }
+  .nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 11px;
+  }
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: url("logo-icon.jpg") center / cover no-repeat;
+    border-radius: 6px;
+    flex: 0 0 auto;
+  }
+  .brand-word {
+    font-family: var(--stencil);
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    text-transform: uppercase;
+    line-height: 1;
+    padding-top: 4px;
+  }
+  .brand-word .ap { color: var(--brand-cyan); }
+
+  .menu { display: flex; gap: 4px; justify-content: center; }
+  .menu a {
+    position: relative;
+    padding: 10px 16px;
+    font-size: 14.5px; font-weight: 500; color: var(--text);
+    border-radius: 999px;
+    transition: color .2s, background .2s;
+  }
+  .menu a:hover { background: rgba(255,255,255,0.05); }
+  .menu a.active::after {
+    content: "";
+    position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
+    width: 20px; height: 2px; border-radius: 2px;
+    background: var(--brand-grad);
+  }
+
+  .social { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
+  .social a {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.02);
+    transition: border-color .2s, background .2s, transform .2s;
+  }
+  .social a:hover { border-color: var(--line-2); background: rgba(255,255,255,0.05); transform: translateY(-1px); }
+  .social svg { width: 15px; height: 15px; }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    position: relative;
+    padding: clamp(80px, 12vw, 160px) 0 clamp(80px, 10vw, 140px);
+    overflow: hidden;
+    perspective: 1200px;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(50% 40% at 50% 30%, rgba(31,168,224,0.10), transparent 70%),
+      radial-gradient(40% 35% at 80% 70%, rgba(156,39,176,0.08), transparent 70%),
+      radial-gradient(35% 30% at 20% 80%, rgba(233,30,99,0.06), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Floating 3D cubes — real volumetric cubes with 6 faces, drifting through space */
+  .hero-cubes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+  .fcube {
+    position: absolute;
+    width: var(--size, 80px);
+    height: var(--size, 80px);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .fcube .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    backface-visibility: visible;
+  }
+  /* 6 faces of the cube */
+  .fcube .front  { background: linear-gradient(135deg, #f0f0f0, #c8c8c8); transform: translateZ(calc(var(--size) / 2)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
+  .fcube .back   { background: linear-gradient(135deg, #888, #6a6a6a); transform: rotateY(180deg) translateZ(calc(var(--size) / 2)); }
+  .fcube .right  { background: linear-gradient(135deg, #a8a8a8, #888); transform: rotateY(90deg) translateZ(calc(var(--size) / 2)); }
+  .fcube .left   { background: linear-gradient(135deg, #b8b8b8, #909090); transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
+  .fcube .top    { background: linear-gradient(135deg, #ffffff, #e0e0e0); transform: rotateX(90deg) translateZ(calc(var(--size) / 2)); }
+  .fcube .bottom { background: linear-gradient(135deg, #707070, #555); transform: rotateX(-90deg) translateZ(calc(var(--size) / 2)); }
+
+  /* LED dot — placed inside the FRONT face only */
+  .fcube .front::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 42%; aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--led, transparent) 0%, var(--led, transparent) 45%, transparent 80%);
+    box-shadow: 0 0 24px var(--led, transparent), 0 0 8px var(--led, transparent);
+    filter: blur(1px);
+    opacity: 0;
+    transition: opacity 600ms ease;
+  }
+  .fcube.lit .front::before { opacity: 1; }
+
+  /* 5 cubes — small, slow, drifting subtly through space */
+  .fcube.f1 { --size: 42px; top: 18%; left: 8%;  --led: #FFD700; animation: drift1 26s ease-in-out infinite; }
+  .fcube.f2 { --size: 36px; top: 24%; left: 86%; --led: #B026FF; animation: drift2 30s ease-in-out infinite; }
+  .fcube.f3 { --size: 48px; top: 72%; left: 12%; --led: #FF1493; animation: drift3 28s ease-in-out infinite; }
+  .fcube.f4 { --size: 40px; top: 76%; left: 84%; --led: #00D4FF; animation: drift4 32s ease-in-out infinite; }
+  .fcube.f5 { --size: 32px; top: 10%; left: 48%; --led: #FF6B35; animation: drift5 24s ease-in-out infinite; opacity: 0.7; }
+
+  /* Rotation kept subtle — cubes always face camera at a 3/4 angle, never edge-on */
+  @keyframes drift1 {
+    0%   { transform: translate3d(0, 0, 0)         rotateX(-18deg) rotateY(22deg); }
+    25%  { transform: translate3d(60px, -30px, 20px)   rotateX(-22deg) rotateY(28deg); }
+    50%  { transform: translate3d(120px, 40px, 30px)   rotateX(-15deg) rotateY(32deg); }
+    75%  { transform: translate3d(50px, 70px, 15px)    rotateX(-20deg) rotateY(25deg); }
+    100% { transform: translate3d(0, 0, 0)         rotateX(-18deg) rotateY(22deg); }
+  }
+  @keyframes drift2 {
+    0%   { transform: translate3d(0, 0, 0)          rotateX(20deg)  rotateY(-28deg); }
+    25%  { transform: translate3d(-50px, 40px, 25px)   rotateX(24deg)  rotateY(-32deg); }
+    50%  { transform: translate3d(-90px, -30px, 40px)  rotateX(18deg)  rotateY(-22deg); }
+    75%  { transform: translate3d(-30px, -60px, 25px)  rotateX(22deg)  rotateY(-30deg); }
+    100% { transform: translate3d(0, 0, 0)          rotateX(20deg)  rotateY(-28deg); }
+  }
+  @keyframes drift3 {
+    0%   { transform: translate3d(0, 0, 0)         rotateX(-22deg) rotateY(-20deg); }
+    25%  { transform: translate3d(70px, -40px, 25px)   rotateX(-18deg) rotateY(-15deg); }
+    50%  { transform: translate3d(140px, 0px, 45px)    rotateX(-25deg) rotateY(-25deg); }
+    75%  { transform: translate3d(80px, 50px, 25px)    rotateX(-20deg) rotateY(-20deg); }
+    100% { transform: translate3d(0, 0, 0)         rotateX(-22deg) rotateY(-20deg); }
+  }
+  @keyframes drift4 {
+    0%   { transform: translate3d(0, 0, 0)          rotateX(22deg)  rotateY(30deg); }
+    25%  { transform: translate3d(-60px, -40px, 25px)  rotateX(18deg)  rotateY(26deg); }
+    50%  { transform: translate3d(-120px, 30px, 40px)  rotateX(25deg)  rotateY(34deg); }
+    75%  { transform: translate3d(-60px, 70px, 25px)   rotateX(20deg)  rotateY(28deg); }
+    100% { transform: translate3d(0, 0, 0)          rotateX(22deg)  rotateY(30deg); }
+  }
+  @keyframes drift5 {
+    0%   { transform: translate3d(0, 0, 0)         rotateX(-20deg) rotateY(-25deg); }
+    25%  { transform: translate3d(40px, 60px, 20px)    rotateX(-15deg) rotateY(-18deg); }
+    50%  { transform: translate3d(-30px, 90px, 35px)   rotateX(-25deg) rotateY(-28deg); }
+    75%  { transform: translate3d(-50px, 40px, 20px)   rotateX(-18deg) rotateY(-22deg); }
+    100% { transform: translate3d(0, 0, 0)         rotateX(-20deg) rotateY(-25deg); }
+  }
+
+  @media (max-width: 980px) {
+    .fcube.f5 { display: none; }
+  }
+  @media (max-width: 760px) {
+    .hero-cubes { display: none; }
+  }
+  .hero-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-copy { min-width: 0; max-width: 880px; }
+
+  .tagline {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(44px, 6vw, 84px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0 0 28px;
+  }
+  .tagline em {
+    font-style: normal;
+    background: none;
+    -webkit-text-fill-color: var(--text);
+    color: var(--text);
+  }
+  .hero-sub {
+    color: var(--text-dim);
+    font-size: clamp(16px, 1.15vw, 19px);
+    max-width: 620px;
+    line-height: 1.6;
+    margin: 0 auto;
+  }
+  .hero-cta {
+    margin-top: 40px;
+    display: flex; gap: 14px; flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.005em;
+    transition: transform .2s ease, box-shadow .3s ease, background .2s, border-color .2s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: #fff; color: #0A0A0A;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 14px 40px -8px rgba(31,168,224,0.55),
+      0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .btn-ghost {
+    border: 1px solid var(--line-2); color: var(--text);
+    background: rgba(255,255,255,0.02);
+  }
+  .btn-ghost:hover { border-color: #3a3a3a; background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+  .btn .arr { transition: transform .2s ease; }
+  .btn:hover .arr { transform: translateX(3px); }
+
+  .hero-stats {
+    display: flex; gap: 48px; margin: 64px auto 0;
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 700px;
+  }
+  .hero-stats div { display: flex; flex-direction: column; gap: 2px; }
+  .hero-stats b { font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+  .hero-stats span { font-size: 12.5px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+
+  /* ----------- LED WALL ------------------------------------- */
+  /* container shows ONLY the wall area of the source photo —
+     no border-radius, no shadow, so the black grout fuses with the page. */
+  .wall-wrap {
+    position: relative;
+    /* aspect-ratio of just the wall area (measured: 1408 × 715 inside the 1536×1024 photo) */
+    aspect-ratio: 1408 / 715;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  /* the source photo, scaled and positioned so the wall fills the wrap */
+  .wall-photo {
+    position: absolute;
+    top: -11.19%;
+    left: -4.47%;
+    width: 109.09%;
+    aspect-ratio: 1536 / 1024;
+    background: url("wall-hero.jpg") center / 100% 100% no-repeat;
+  }
+  /* the overlay covers the full wrap = the wall area */
+  .wall-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    z-index: 3;
+  }
+  .cube {
+    position: relative;
+    background: transparent;
+  }
+  /* the LED — 3 concentric layers per cube, each blended via screen so the
+     light overlays the photo rather than replacing it. Opacity lives on each
+     layer (NOT on a wrapper) so screen-blending isn't isolated. */
+  .led-core, .led-glow, .led-halo {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 400ms ease;
+    will-change: opacity;
+  }
+  /* crisp center dot */
+  .led-core {
+    width: 34%; aspect-ratio: 1;
+    background: radial-gradient(circle, var(--c) 0%, var(--c) 50%, transparent 80%);
+    filter: blur(1px);
+  }
+  /* intermediate aureole */
+  .led-glow {
+    width: 55%; aspect-ratio: 1;
+    background: radial-gradient(circle, color-mix(in oklab, var(--c) 40%, transparent), transparent 70%);
+    filter: blur(6px);
+  }
+  /* outer bleed onto neighbours */
+  .led-halo {
+    width: 90%; aspect-ratio: 1;
+    background: radial-gradient(circle, color-mix(in oklab, var(--c) 25%, transparent), transparent 65%);
+    filter: blur(14px);
+  }
+  /* hover */
+  .cube.is-hot .led-core,
+  .cube.is-hot .led-glow,
+  .cube.is-hot .led-halo {
+    opacity: 1;
+    transition: opacity 200ms ease;
+  }
+
+  /* mobile placeholder */
+  .wall-mobile {
+    display: none;
+    aspect-ratio: 16/10;
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(31,168,224,0.22), transparent 60%),
+      radial-gradient(circle at 70% 70%, rgba(233,30,99,0.18), transparent 60%),
+      #0d0d0d;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+  }
+  .wall-mobile .play {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    display: grid; place-items: center; margin: 0 auto 16px;
+  }
+
+  /* ============================================================
+     LE MUR — dedicated section, wall as centerpiece
+     ============================================================ */
+  .mur-section {
+    padding-top: clamp(40px, 5vw, 80px);
+  }
+  .mur-head {
+    text-align: center;
+    margin: 0 auto clamp(48px, 6vw, 80px);
+    max-width: 760px;
+  }
+  .mur-head .section-eyebrow { display: inline-flex; }
+  .mur-stage {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .mur-stage .wall-wrap {
+    width: 100%;
+  }
+  .mur-hint {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 13.5px;
+    letter-spacing: 0.04em;
+  }
+
+  /* breathing space for the wall stage in "Comment ça marche" */
+  .what-wrap .mur-stage {
+    margin-top: clamp(50px, 6vw, 80px);
+    margin-bottom: 0;
+  }
+  .what-wrap .how-pills {
+    margin-top: clamp(60px, 7vw, 100px);
+  }
+
+  /* Intro video (presentation video, big hero-adjacent) */
+  .intro-video {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    aspect-ratio: 16/9;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #0c0c0c url("intro-poster.png") center / cover no-repeat;
+    border: 1px solid var(--line);
+    transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+  }
+  .intro-video::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.7));
+    pointer-events: none;
+  }
+  .intro-video:hover {
+    transform: translateY(-4px);
+    border-color: var(--line-2);
+    box-shadow: 0 40px 80px -30px rgba(31,168,224,0.40);
+  }
+  .intro-video::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(31,168,224,0.5), rgba(156,39,176,0.5), rgba(233,30,99,0.5));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity .35s ease;
+    filter: blur(20px);
+  }
+  .intro-video:hover::after { opacity: 0.6; }
+  .intro-video-inner {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+  }
+  .play-btn-lg {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    display: grid; place-items: center;
+    box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6);
+    transition: transform .3s ease;
+  }
+  .intro-video:hover .play-btn-lg { transform: scale(1.08); }
+  .play-btn-lg svg { fill: #0A0A0A; margin-left: 5px; }
+  .intro-video .label {
+    position: absolute; left: 24px; bottom: 22px;
+    font-size: 12.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+  .intro-video .timestamp {
+    position: absolute; right: 24px; bottom: 22px;
+    font-size: 13px; color: rgba(255,255,255,0.65); font-variant-numeric: tabular-nums;
+  }
+  .mur-stage .wall-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -8% -6% -4% -6%;
+    background:
+      radial-gradient(50% 40% at 50% 50%, rgba(31,168,224,0.18), transparent 70%),
+      radial-gradient(40% 35% at 80% 60%, rgba(156,39,176,0.14), transparent 70%),
+      radial-gradient(35% 30% at 20% 40%, rgba(233,30,99,0.12), transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(20px);
+  }
+
+  /* ============================================================
+     SECTIONS — generic
+     ============================================================ */
+  section { padding: clamp(80px, 9vw, 140px) 0; position: relative; }
+  .section-eyebrow {
+    color: var(--text-faint); font-size: 12.5px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-eyebrow::before {
+    content: ""; display: block; width: 22px; height: 1px; background: var(--text-faint);
+  }
+  .section-eyebrow.center { justify-content: center; }
+  .section-title {
+    font-size: clamp(36px, 4vw, 56px); line-height: 1.02;
+    letter-spacing: -0.03em; max-width: 18ch;
+  }
+  .section-title.center { margin-left: auto; margin-right: auto; }
+  .section-lead {
+    color: var(--text-dim); font-size: clamp(16px, 1.1vw, 19px);
+    max-width: 56ch; margin-top: 22px; line-height: 1.6;
+  }
+  .section-lead.center { margin-left: auto; margin-right: auto; }
+
+  /* ============================================================
+     POURQUOI — 3 piliers
+     ============================================================ */
+  .why-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 90px);
+    align-items: start;
+  }
+  .pillars {
+    margin-top: 38px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .pillar {
+    display: grid; grid-template-columns: 36px 1fr;
+    gap: 18px;
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
+    align-items: start;
+  }
+  .pillar:last-child { border-bottom: 1px solid var(--line); }
+  .pillar .num {
+    font-family: var(--display); font-size: 13px; font-weight: 600;
+    color: var(--text-faint); letter-spacing: 0.08em;
+    padding-top: 4px;
+  }
+  .pillar h4 {
+    font-family: var(--display); font-size: 19px; font-weight: 600; letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .pillar p { color: var(--text-dim); font-size: 15.5px; line-height: 1.55; }
+
+  .why-visual {
+    aspect-ratio: 4/5;
+    border-radius: 12px;
+    position: relative; overflow: hidden;
+    background: #0c0c0c url("pourquoi.png") center / cover no-repeat;
+    border: 1px solid var(--line);
+  }
+  .why-visual::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(0,0,0,0) 60%, rgba(0,0,0,0.7));
+    pointer-events: none;
+  }
+  .why-visual .tag {
+    position: absolute; left: 22px; bottom: 22px;
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* ============================================================
+     COMMENT — vidéo + 3 piliers
+     ============================================================ */
+  .what-wrap { text-align: center; }
+  .video-frame {
+    margin: 60px auto 0;
+    max-width: 1080px;
+    aspect-ratio: 16/9;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(circle at 50% 50%, rgba(31,168,224,0.16), transparent 60%),
+      #0c0c0c;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform .3s ease, box-shadow .3s ease;
+  }
+  .video-frame:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 28px 60px -28px rgba(31,168,224,0.5);
+  }
+  .video-frame .play-btn {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: 88px; height: 88px; border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    display: grid; place-items: center;
+    transition: transform .3s ease;
+  }
+  .video-frame:hover .play-btn { transform: translate(-50%, -50%) scale(1.06); }
+  .video-frame .play-btn svg { fill: #0A0A0A; margin-left: 4px; }
+  .video-frame .label {
+    position: absolute; left: 20px; bottom: 20px;
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .video-frame .timestamp {
+    position: absolute; right: 20px; bottom: 20px;
+    font-size: 12.5px; color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums;
+  }
+
+  .how-pills {
+    margin-top: 44px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    max-width: 1080px; margin-left: auto; margin-right: auto;
+    text-align: left;
+  }
+  .how-pill {
+    padding: 24px;
+    border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,0.015);
+    transition: border-color .25s, transform .25s;
+  }
+  .how-pill:hover { border-color: var(--line-2); transform: translateY(-2px); }
+  .how-pill .num {
+    font-family: var(--display); font-size: 13px; color: var(--text-faint);
+    letter-spacing: 0.1em; margin-bottom: 12px;
+  }
+  .how-pill h4 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .how-pill p { font-size: 14.5px; color: var(--text-dim); line-height: 1.55; }
+  .what-cta { margin-top: 56px; display: flex; justify-content: center; }
+
+  /* ============================================================
+     POUR QUI — 4 onglets
+     ============================================================ */
+  .who-head { text-align: center; }
+  .toggle-wrap {
+    margin: 40px auto 50px;
+    display: flex; justify-content: center;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 12px;
+  }
+  .toggle-wrap::-webkit-scrollbar { display: none; }
+  .toggle {
+    display: inline-flex; padding: 5px;
+    background: #131313; border: 1px solid var(--line); border-radius: 999px;
+    position: relative;
+    margin: 0 auto;
+  }
+  .toggle button {
+    position: relative; z-index: 2;
+    padding: 11px 22px; border-radius: 999px;
+    font-size: 14px; font-weight: 500;
+    color: var(--text-dim);
+    transition: color .25s ease;
+    white-space: nowrap;
+  }
+  .toggle button.active { color: #0A0A0A; }
+  .toggle .pill {
+    position: absolute; top: 5px; bottom: 5px;
+    background: var(--text); border-radius: 999px;
+    transition: left .35s cubic-bezier(.7,.0,.2,1), width .35s cubic-bezier(.7,.0,.2,1);
+    z-index: 1;
+  }
+
+  .who-stage {
+    position: relative;
+    min-height: 460px;
+  }
+  .who-panel {
+    position: absolute; inset: 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 70px);
+    align-items: center;
+    opacity: 0; transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .who-panel.active { opacity: 1; transform: none; pointer-events: auto; }
+  .who-panel h3 {
+    font-size: clamp(28px, 2.6vw, 38px); letter-spacing: -0.025em; line-height: 1.05;
+    margin-bottom: 18px;
+  }
+  .who-panel p { color: var(--text-dim); max-width: 48ch; line-height: 1.6; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 22px; }
+  .chip {
+    padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line-2);
+    background: rgba(255,255,255,0.025); font-size: 13px; color: #d6d6d6;
+  }
+  .refs {
+    color: var(--text-faint); font-size: 13px; margin-bottom: 30px;
+    line-height: 1.5;
+  }
+  .refs b { color: var(--text-dim); font-weight: 500; }
+
+  .who-visual {
+    aspect-ratio: 4/3; border-radius: 12px; overflow: hidden;
+    position: relative; border: 1px solid var(--line);
+  }
+  .who-visual.pro    { background: #0a0a0a url("qui-entreprise.png")     center / cover no-repeat; }
+  .who-visual.sport  { background: #0a0a0a url("qui-sport.png")          center / cover no-repeat; }
+  .who-visual.sens   { background: #0a0a0a url("qui-sensibilisation.png") center / cover no-repeat; }
+  .who-visual.priv   { background: #0a0a0a url("qui-particuliers.png")   center / cover no-repeat; }
+  .who-visual::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(0,0,0,0) 55%, rgba(0,0,0,0.7));
+    pointer-events: none;
+  }
+  .who-visual .tag {
+    position: absolute; left: 20px; bottom: 18px;
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* ============================================================
+     PROOF
+     ============================================================ */
+  .proof { background: #080808; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .marquee {
+    overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    padding: 8px 0 36px;
+  }
+  .marquee-track {
+    display: flex; gap: 60px; width: max-content;
+    animation: scroll 42s linear infinite;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .logo-img {
+    flex: 0 0 auto;
+    height: 56px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    padding: 14px 8px;
+    opacity: 0.7;
+    filter: grayscale(1) brightness(1.4);
+    transition: opacity .25s ease, filter .25s ease;
+  }
+  .logo-img:hover {
+    opacity: 1;
+    filter: grayscale(0) brightness(1);
+  }
+
+  .kpis {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    margin-top: 60px;
+    gap: 22px;
+  }
+  .kpi {
+    padding: 44px 36px 38px;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(80% 100% at 50% 0%, rgba(31,168,224,0.10), transparent 60%),
+      rgba(255,255,255,0.015);
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s ease, transform .3s ease;
+  }
+  .kpi:nth-child(2) {
+    background:
+      radial-gradient(80% 100% at 50% 0%, rgba(156,39,176,0.10), transparent 60%),
+      rgba(255,255,255,0.015);
+  }
+  .kpi:nth-child(3) {
+    background:
+      radial-gradient(80% 100% at 50% 0%, rgba(233,30,99,0.10), transparent 60%),
+      rgba(255,255,255,0.015);
+  }
+  .kpi::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  }
+  .kpi:hover { border-color: var(--line-2); transform: translateY(-3px); }
+  .kpi b {
+    font-family: var(--display); font-size: clamp(46px, 5vw, 72px); font-weight: 700;
+    letter-spacing: -0.035em; display: block; line-height: 1; margin-bottom: 14px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi:nth-child(1) b { color: var(--brand-cyan); }
+  .kpi:nth-child(2) b { color: var(--brand-violet); }
+  .kpi:nth-child(3) b { color: var(--brand-magenta); }
+  .kpi span {
+    color: var(--text-dim); font-size: 14px;
+    text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500;
+  }
+
+  .testimonials {
+    margin-top: 60px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+  }
+  .testimonials.testimonials-single {
+    grid-template-columns: minmax(0, 720px);
+    justify-content: center;
+  }
+  .testimonials.testimonials-single .quote {
+    padding: 40px 44px;
+    font-size: 17px;
+  }
+  .testimonials.testimonials-single .quote p {
+    font-size: 19px;
+    line-height: 1.55;
+  }
+  .quote {
+    padding: 30px 28px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.015);
+    display: flex; flex-direction: column; gap: 22px;
+  }
+  .quote p { font-size: 16px; color: #e4e4e4; line-height: 1.55; }
+  .quote .who { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+  .quote .who .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--brand-grad);
+    display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 14px;
+    font-family: var(--display);
+  }
+  .quote .who div b { display: block; font-size: 14.5px; font-weight: 600; }
+  .quote .who div small { color: var(--text-faint); font-size: 12.5px; }
+  .quote.placeholder {
+    border-style: dashed;
+    border-color: var(--line-2);
+    background: transparent;
+  }
+  .quote.placeholder p { color: var(--text-faint); font-style: italic; }
+  .quote.placeholder .avatar {
+    background: transparent;
+    border: 1px dashed var(--line-2);
+    color: var(--text-faint);
+  }
+
+  /* ============================================================
+     FAQ
+     ============================================================ */
+  .faq-wrap {
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(40px, 6vw, 90px);
+    align-items: start;
+  }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item {
+    border-top: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--display); font-size: 19px; font-weight: 600; letter-spacing: -0.01em;
+    text-align: left;
+    gap: 22px;
+  }
+  .faq-q .icon {
+    position: relative; flex: 0 0 auto;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--line-2); display: grid; place-items: center;
+    transition: transform .3s ease, border-color .2s ease, background .2s ease;
+  }
+  .faq-item.open .faq-q .icon {
+    transform: rotate(45deg);
+    background: var(--brand-magenta);
+    border-color: var(--brand-magenta);
+  }
+  .faq-q .icon::before, .faq-q .icon::after {
+    content: ""; position: absolute; background: #fff; border-radius: 1px;
+  }
+  .faq-q .icon::before { width: 11px; height: 1.5px; }
+  .faq-q .icon::after { width: 1.5px; height: 11px; }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s ease, opacity .35s ease, margin .35s ease;
+    opacity: 0; margin-top: 0;
+    color: var(--text-dim); font-size: 16px; line-height: 1.6; max-width: 62ch;
+  }
+  .faq-item.open .faq-a { max-height: 260px; opacity: 1; margin-top: 14px; }
+
+  /* ============================================================
+     FORM
+     ============================================================ */
+  .form-section {
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgba(31,168,224,0.12), transparent 70%),
+      #080808;
+    border-top: 1px solid var(--line);
+  }
+  .form-wrap {
+    display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(40px, 6vw, 90px); align-items: start;
+  }
+  .contact-foot {
+    margin-top: 32px;
+    color: var(--text-faint);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label {
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .field input, .field select, .field textarea {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit; font-size: 15.5px;
+    padding: 14px 16px;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+  }
+  .field textarea { resize: vertical; min-height: 130px; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: 0;
+    border-color: var(--brand-cyan);
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 0 0 4px rgba(31,168,224,0.14);
+  }
+  .field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A0A0A0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+    padding-right: 44px;
+    color-scheme: dark;
+  }
+  .field select option {
+    background-color: #141414;
+    color: var(--text);
+    padding: 8px;
+  }
+  .field select option:checked {
+    background-color: #1f1f1f;
+    color: #fff;
+  }
+  .form-submit { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 6px; }
+  .form-submit small { color: var(--text-faint); font-size: 13px; }
+
+  /* ============================================================
+     ANTOINE
+     ============================================================ */
+  .antoine-section {
+    border-top: 1px solid var(--line);
+  }
+  .antoine-wrap {
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(40px, 5vw, 70px);
+    align-items: center;
+  }
+  .antoine-photo {
+    aspect-ratio: 4/5;
+    border-radius: 12px;
+    border: 1px dashed var(--line-2);
+    background:
+      radial-gradient(circle at 50% 35%, rgba(156,39,176,0.18), transparent 60%),
+      #0e0e0e;
+    display: grid; place-items: center;
+    color: var(--text-faint); font-size: 13px; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .antoine-photo::after {
+    content: "Photo Antoine";
+    position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+    font-size: 11px;
+  }
+  .antoine h3 {
+    font-family: var(--display); font-size: clamp(28px, 2.6vw, 38px); letter-spacing: -0.025em;
+    margin-bottom: 18px;
+  }
+  .antoine p { color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+  .antoine .signature {
+    margin-top: 22px; font-style: italic; color: var(--text-faint); font-size: 14px;
+  }
+
+  /* ============================================================
+     FLOATING DEVIS
+     ============================================================ */
+  .float-cta {
+    position: fixed; right: 24px; bottom: 24px;
+    z-index: 65;
+    padding: 14px 22px;
+    border-radius: 999px;
+    background: var(--text); color: #0A0A0A;
+    font-weight: 600; letter-spacing: -0.005em; font-size: 14.5px;
+    display: inline-flex; align-items: center; gap: 10px;
+    box-shadow:
+      0 14px 36px -10px rgba(31,168,224,0.4),
+      0 0 0 1px rgba(0,0,0,0.4);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .float-cta:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 50px -10px rgba(233,30,99,0.55),
+      0 0 0 1px rgba(0,0,0,0.4);
+  }
+  .float-cta .pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brand-magenta); box-shadow: 0 0 10px var(--brand-magenta);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer {
+    padding: 36px 0 28px;
+    border-top: 1px solid var(--line);
+    color: var(--text-faint);
+    font-size: 13.5px;
+  }
+  .foot {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .foot-links { display: flex; gap: 22px; flex-wrap: wrap; }
+  .foot-links a:hover { color: var(--text); }
+  .rgpd {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    color: var(--text-dim); font-size: 12.5px;
+  }
+  .rgpd:hover { border-color: var(--line-2); color: var(--text); }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 980px) {
+    .hero { padding: 80px 0 60px; }
+    .hero-stats { gap: 22px; }
+    .why-grid, .who-stage, .who-panel, .faq-wrap, .form-wrap, .antoine-wrap { grid-template-columns: 1fr; }
+    .who-stage { min-height: 0; }
+    .who-panel { position: relative; }
+    .who-panel:not(.active) { display: none; }
+    .testimonials, .kpis, .how-pills { grid-template-columns: 1fr; }
+    form { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .menu { display: none; }
+    .nav { grid-template-columns: 1fr auto; }
+    .wall-wrap { display: none; }
+    .wall-mobile { display: grid; }
+    .tagline { font-size: 44px; }
+    .float-cta { right: 16px; bottom: 16px; padding: 12px 18px; }
+    .toggle button { padding: 10px 16px; font-size: 13px; }
+  }
+  /* ============================================================
+     PAGES — SPA routing : show / hide
+     ============================================================ */
+  .page { display: block; }
+  .page[hidden] { display: none !important; }
+
+  /* ============================================================
+     PRESTATIONS — page-prestations content
+     ============================================================ */
+  .presta-hero {
+    padding: clamp(80px, 11vw, 160px) 0 clamp(60px, 7vw, 100px);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .presta-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(50% 40% at 50% 30%, rgba(31,168,224,0.10), transparent 70%),
+      radial-gradient(40% 35% at 80% 70%, rgba(156,39,176,0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .presta-hero .shell { position: relative; z-index: 2; }
+  .presta-hero h1 {
+    font-size: clamp(44px, 5.6vw, 80px);
+    line-height: 1.02; letter-spacing: -0.03em;
+    max-width: 16ch; margin: 0 auto 26px;
+  }
+  .presta-hero .lead {
+    color: var(--text-dim);
+    font-size: clamp(16px, 1.15vw, 19px);
+    max-width: 620px; margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+  .presta-hero-cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+  .presta-section { padding: clamp(60px, 7vw, 100px) 0; position: relative; }
+  .presta-section + .presta-section { border-top: 1px solid var(--line); }
+  .presta-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 90px);
+    align-items: center;
+  }
+  .presta-card.reverse .presta-photo { order: 2; }
+  .presta-photo {
+    aspect-ratio: 4/3;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #0c0c0c center / cover no-repeat;
+    position: relative;
+  }
+  .presta-photo::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(0,0,0,0) 55%, rgba(0,0,0,0.7));
+    pointer-events: none;
+  }
+  .presta-photo.entreprises   { background-image: url("qui-entreprise.png"); }
+  .presta-photo.sport         { background-image: url("qui-sport.png"); }
+  .presta-photo.sensibilisation { background-image: url("qui-sensibilisation.png"); }
+  .presta-photo.particuliers  { background-image: url("qui-particuliers.png"); }
+  .presta-photo .num {
+    position: absolute; left: 22px; top: 22px;
+    font-family: var(--display); font-weight: 700;
+    font-size: 13px; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.7);
+    z-index: 1;
+  }
+
+  .presta-content h2 {
+    font-size: clamp(30px, 3.2vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 18px;
+  }
+  .presta-content .baseline {
+    color: var(--text-dim);
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+  .presta-content > p {
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    line-height: 1.65;
+    max-width: 52ch;
+  }
+  .formats { display: flex; flex-direction: column; gap: 0; margin-bottom: 28px; }
+  .format {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .format:last-child { border-bottom: 1px solid var(--line); }
+  .format .f-name { font-family: var(--display); font-weight: 600; font-size: 15.5px; color: var(--text); }
+  .format .f-desc { color: var(--text-dim); font-size: 14.5px; }
+  .format .f-cap {
+    color: var(--text-faint); font-size: 13px;
+    letter-spacing: 0.04em; font-variant-numeric: tabular-nums; text-align: right;
+  }
+  .presta-card .refs { color: var(--text-faint); font-size: 13.5px; margin-bottom: 28px; line-height: 1.55; }
+  .presta-card .refs b { color: var(--text-dim); font-weight: 500; }
+
+  /* INCLUS */
+  .inclus-section { background: #080808; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .inclus-head { text-align: center; margin-bottom: clamp(40px, 5vw, 70px); }
+  .inclus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .inclus-card {
+    padding: 28px 26px; border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.015);
+  }
+  .inclus-card .ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: rgba(31,168,224,0.10);
+    border: 1px solid rgba(31,168,224,0.25);
+    margin-bottom: 18px;
+  }
+  .inclus-card .ico svg { width: 18px; height: 18px; stroke: var(--brand-cyan); fill: none; stroke-width: 1.7; }
+  .inclus-card h4 { font-size: 16.5px; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .inclus-card p { color: var(--text-dim); font-size: 14.5px; line-height: 1.55; }
+
+  /* TARIFS */
+  .pricing-head { text-align: center; margin: 0 auto clamp(40px, 5vw, 70px); max-width: 720px; }
+  .factors-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: clamp(50px, 6vw, 80px); }
+  .factor { padding: 32px 28px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,0.015); position: relative; }
+  .factor-num { font-family: var(--display); font-size: 13px; font-weight: 600; letter-spacing: 0.1em; color: var(--text-faint); margin-bottom: 16px; }
+  .factor h4 { font-size: 17px; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .factor p { color: var(--text-dim); font-size: 14.5px; line-height: 1.55; }
+  .pricing-cta { display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; max-width: 580px; margin: 0 auto; }
+  .pricing-note-sub { color: var(--text-dim); font-size: 15.5px; line-height: 1.6; }
+
+  @media (max-width: 980px) {
+    .presta-card { grid-template-columns: 1fr; gap: 32px; }
+    .presta-card.reverse .presta-photo { order: 0; }
+    .inclus-grid { grid-template-columns: 1fr 1fr; }
+    .factors-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .inclus-grid { grid-template-columns: 1fr; }
+    .format { grid-template-columns: 1fr; gap: 4px; }
+    .format .f-cap { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site-header" id="header">
+  <div class="shell">
+    <nav class="nav" aria-label="Navigation principale">
+      <a class="brand" href="#accueil" data-page="accueil" aria-label="Dynam'Event — retour à l'accueil">
+        <span class="brand-icon" aria-hidden="true"></span>
+        <span class="brand-word">Dynam<span class="ap">'</span>Event</span>
+      </a>
+      <div class="menu" role="menubar">
+        <a href="#accueil" class="active" data-page="accueil" role="menuitem">Accueil</a>
+        <a href="#prestations" data-page="prestations" role="menuitem">Nos prestations</a>
+        <a href="#blog" data-page="blog" role="menuitem">Blog</a>
+        <a href="#contact" data-page="accueil" data-anchor="contact" role="menuitem">Contact</a>
+      </div>
+      <div class="social" aria-label="Réseaux sociaux">
+        <a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="#" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v4H4zM4 10h4v10H4zM10 10h4v1.5c.7-1 1.9-1.8 3.5-1.8 3 0 3.5 2 3.5 4.5V20h-4v-5c0-1.3-.4-2.1-1.5-2.1S14 13.7 14 15v5h-4z"/></svg>
+        </a>
+        <a href="#" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 3v10.3a3 3 0 1 1-3-3v-3a6 6 0 1 0 6 6V8.5a6.6 6.6 0 0 0 4 1.4V6.6A4.6 4.6 0 0 1 17 3z"/></svg>
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================
+     PAGE : ACCUEIL
+     ============================================================ -->
+<main class="page" id="page-accueil">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-cubes" aria-hidden="true">
+    <div class="fcube f1">
+      <div class="face front"></div><div class="face back"></div>
+      <div class="face right"></div><div class="face left"></div>
+      <div class="face top"></div><div class="face bottom"></div>
+    </div>
+    <div class="fcube f2">
+      <div class="face front"></div><div class="face back"></div>
+      <div class="face right"></div><div class="face left"></div>
+      <div class="face top"></div><div class="face bottom"></div>
+    </div>
+    <div class="fcube f3">
+      <div class="face front"></div><div class="face back"></div>
+      <div class="face right"></div><div class="face left"></div>
+      <div class="face top"></div><div class="face bottom"></div>
+    </div>
+    <div class="fcube f4">
+      <div class="face front"></div><div class="face back"></div>
+      <div class="face right"></div><div class="face left"></div>
+      <div class="face top"></div><div class="face bottom"></div>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <h1 class="tagline">+200 défis. 1 mur.<br/>Un événement inoubliable.</h1>
+        <p class="hero-sub">
+          Notre mur interactif déclenche plus de 200 défis de mémoire, réflexe, sport ou cohésion. Solo, en équipe ou en battle 1 vs 1, vos invités s'engagent — loin des animations passives classiques.
+        </p>
+        <div class="hero-cta">
+          <a href="#contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+          <a href="#le-mur" class="btn btn-ghost">Entrer dans le jeu</a>
+        </div>
+        <div class="hero-stats">
+          <div><b class="count" data-to="200" data-prefix="+">+0</b><span>défis intégrés</span></div>
+          <div><b class="count" data-to="100" data-suffix=" / h">0 / h</b><span>en mode battle</span></div>
+          <div><b class="count" data-to="2.9" data-decimals="1" data-suffix=" m²">0 m²</b><span>de branding personnalisable</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTRO VIDEO ============ -->
+<section id="le-mur" class="mur-section">
+  <div class="shell">
+    <div class="mur-head">
+      <div class="section-eyebrow center">Le concept en 90 secondes</div>
+      <h2 class="section-title center">Voyez ce qu'il se passe vraiment, autour du mur.</h2>
+      <p class="section-lead center">
+        Une animation qui ne tient pas dans les mots. Regardez les invités jouer, s'affronter, rire — et vous comprendrez pourquoi on parle d'animation interactive.
+      </p>
+    </div>
+    <div class="intro-video reveal" role="button" aria-label="Lire la vidéo de présentation Dynam'Event">
+      <div class="intro-video-inner">
+        <div class="play-btn-lg">
+          <svg width="34" height="34" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <span class="label">Présentation · Dynam'Event</span>
+        <span class="timestamp">01:30</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POURQUOI ============ -->
+<section id="pourquoi">
+  <div class="shell">
+    <div class="why-grid">
+      <div class="reveal">
+        <div class="section-eyebrow">Pourquoi</div>
+        <h2 class="section-title">Faites vivre une expérience engageante. Pas une animation de plus.</h2>
+        <p class="section-lead">
+          Le mur digital capte l'attention, fait participer activement vos publics et crée des souvenirs collectifs forts — loin des animations passives classiques qu'on oublie le lendemain.
+        </p>
+
+        <div class="pillars">
+          <div class="pillar">
+            <div class="num">01</div>
+            <div>
+              <h4>Interaction</h4>
+              <p>Vos invités jouent, défient, s'affrontent. Ce ne sont plus des spectateurs : ce sont des participants.</p>
+            </div>
+          </div>
+          <div class="pillar">
+            <div class="num">02</div>
+            <div>
+              <h4>Personnalisation</h4>
+              <p>2,9 m² de panneaux branding aux couleurs de votre marque. Défis sélectionnés selon votre public et vos objectifs.</p>
+            </div>
+          </div>
+          <div class="pillar">
+            <div class="num">03</div>
+            <div>
+              <h4>Impact</h4>
+              <p>Jusqu'à 100 personnes par heure en mode battle. Une animation qui se voit, qui se partage, qui se raconte.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="why-visual reveal">
+        <div class="tag">Soirée d'entreprise · Bourges</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMENT ============ -->
+<section id="prestations">
+  <div class="shell what-wrap">
+    <div class="section-eyebrow center">Comment ça marche</div>
+    <h2 class="section-title center reveal">
+      40 cubes tactiles, 5 couleurs. +200 défis prêts à jouer.</h2>
+    <p class="section-lead center reveal">
+      Solo, 1 vs 1, équipe. Mémoire, coordination, réflexe, réactivité, logique, cohésion, adresse — foot, basket, hand, rugby, escrime, tennis, padel.
+    </p>
+
+    <div class="mur-stage reveal">
+      <div class="wall-wrap" id="wall" aria-label="Mur LED interactif — survolez les cubes">
+        <div class="wall-photo" aria-hidden="true"></div>
+        <div class="wall-overlay" id="overlay"></div>
+      </div>
+      <div class="wall-mobile" aria-hidden="true">
+        <div>
+          <div class="play">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div>Vidéo du mur en action</div>
+          <small style="color:var(--text-faint); font-size:12px;">— intégration vidéo à venir</small>
+        </div>
+      </div>
+      <p class="mur-hint">↑ Survolez les cubes — c'est exactement la mécanique sur le vrai mur.</p>
+    </div>
+
+    <div class="how-pills">
+      <div class="how-pill reveal">
+        <div class="num">01 / Installation</div>
+        <h4>Concept mobile, 100% clé en main</h4>
+        <p>Transport, installation, démontage : on s'occupe de tout. Vous recevez un dispositif prêt à jouer.</p>
+      </div>
+      <div class="how-pill reveal">
+        <div class="num">02 / Animation</div>
+        <h4>Un animateur expert sur place</h4>
+        <p>Antoine ou un de nos animateurs encadre la prestation, ajuste les défis selon votre public, déclenche les battles.</p>
+      </div>
+      <div class="how-pill reveal">
+        <div class="num">03 / Personnalisation</div>
+        <h4>Aux couleurs de votre marque</h4>
+        <p>Panneaux branding 2,9 m², défis sur-mesure, palette adaptée à votre identité visuelle.</p>
+      </div>
+    </div>
+
+    <div class="what-cta reveal">
+      <a href="#qui" class="btn btn-ghost">Découvrir nos prestations <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POUR QUI ============ -->
+<section id="qui">
+  <div class="shell who-head">
+    <div class="section-eyebrow center">Pour qui</div>
+    <h2 class="section-title center reveal">
+      Selon votre événement, le mur change de rôle.
+    </h2>
+
+    <div class="toggle-wrap">
+      <div class="toggle" role="tablist" id="toggle">
+        <span class="pill" id="togglePill"></span>
+        <button class="active" data-target="pro"   role="tab" aria-selected="true">Entreprises</button>
+        <button                data-target="sport" role="tab" aria-selected="false">Sport &amp; Clubs</button>
+        <button                data-target="sens"  role="tab" aria-selected="false">Sensibilisation</button>
+        <button                data-target="priv"  role="tab" aria-selected="false">Particuliers</button>
+      </div>
+    </div>
+
+    <div class="who-stage">
+      <!-- ENTREPRISES -->
+      <div class="who-panel active" id="pane-pro" role="tabpanel">
+        <div style="text-align:left;">
+          <h3>L'animation qui soude vos équipes.</h3>
+          <p>Team building, séminaires, QVCT, soirées d'entreprise. Le mur fédère vos collaborateurs autour de défis collectifs : cohésion, réflexe, communication. Un format qui marche aussi bien à 20 qu'à 800.</p>
+          <div class="chips">
+            <span class="chip">Team building</span>
+            <span class="chip">Séminaires</span>
+            <span class="chip">QVCT</span>
+            <span class="chip">RSE</span>
+            <span class="chip">Soirées d'entreprise</span>
+            <span class="chip">Conventions</span>
+          </div>
+          <p class="refs"><b>Ils nous ont fait confiance :</b><br/>Bricomarché · CAF Allier · ETOILE 58 (Mercedes) · FPT</p>
+          <a href="#contact" class="btn btn-primary">Devis entreprise <span class="arr">→</span></a>
+        </div>
+        <div class="who-visual pro">
+          <div class="tag">Séminaire · 800 collaborateurs</div>
+        </div>
+      </div>
+
+      <!-- SPORT -->
+      <div class="who-panel" id="pane-sport" role="tabpanel">
+        <div style="text-align:left;">
+          <h3>Valorisez vos partenaires autrement.</h3>
+          <p>Clubs sportifs, événements sportifs grand public, courses, championnats. Le mur met en scène vos sponsors via les défis sport (foot, basket, hand, rugby, tennis) et engage le public sur des battles 1 vs 1 spectaculaires.</p>
+          <div class="chips">
+            <span class="chip">Clubs sportifs</span>
+            <span class="chip">Événements sportifs</span>
+            <span class="chip">Courses</span>
+            <span class="chip">Salons sport</span>
+            <span class="chip">Valorisation partenaires</span>
+          </div>
+          <p class="refs"><b>Ils nous ont fait confiance :</b><br/>Tango Bourges Basket · Groupama (Paris-Nice) · ITF Nevers · Course Pouilly-Sancerre</p>
+          <a href="#contact" class="btn btn-primary">Devis sport &amp; clubs <span class="arr">→</span></a>
+        </div>
+        <div class="who-visual sport">
+          <div class="tag">Tournoi ITF · Nevers</div>
+        </div>
+      </div>
+
+      <!-- SENSIBILISATION -->
+      <div class="who-panel" id="pane-sens" role="tabpanel">
+        <div style="text-align:left;">
+          <h3>Sensibiliser autrement, vraiment.</h3>
+          <p>Sécurité routière, EPI, alcoolémie, gestes et postures, journée sécurité. Le mur transforme un message à faire passer en expérience ludique et participative — celle qu'on retient.</p>
+          <div class="chips">
+            <span class="chip">Sécurité routière</span>
+            <span class="chip">EPI</span>
+            <span class="chip">Risques routiers</span>
+            <span class="chip">Gestes &amp; postures</span>
+            <span class="chip">Journée sécurité</span>
+            <span class="chip">QVCT</span>
+          </div>
+          <p class="refs"><b>Ils nous ont fait confiance :</b><br/>FPT · Risques Routiers Distractifs</p>
+          <a href="#contact" class="btn btn-primary">Devis sensibilisation <span class="arr">→</span></a>
+        </div>
+        <div class="who-visual sens">
+          <div class="tag">Journée sécurité · FPT</div>
+        </div>
+      </div>
+
+      <!-- PARTICULIERS -->
+      <div class="who-panel" id="pane-priv" role="tabpanel">
+        <div style="text-align:left;">
+          <h3>Un moment qui devient un souvenir.</h3>
+          <p>Mariages, anniversaires, fêtes privées. Le mur fait sortir vos invités du photobooth pour les mettre en mouvement. Le coin photo le plus animé de la soirée — celui où l'on se retrouve à 23h.</p>
+          <div class="chips">
+            <span class="chip">Mariages</span>
+            <span class="chip">Anniversaires</span>
+            <span class="chip">EVJF / EVG</span>
+            <span class="chip">Fêtes privées</span>
+          </div>
+          <a href="#contact" class="btn btn-primary">Devis particulier <span class="arr">→</span></a>
+        </div>
+        <div class="who-visual priv">
+          <div class="tag">Mariage · Centre-Val de Loire</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROOF ============ -->
+<section class="proof">
+  <div class="shell">
+    <div class="section-eyebrow">Ils nous ont confié leur événement</div>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <img class="logo-img" src="client-bourges-basket.png" alt="Tango Bourges Basket" />
+        <img class="logo-img" src="client-bricomarche.png" alt="Bricomarché" />
+        <img class="logo-img" src="client-groupama.png" alt="Groupama" />
+        <img class="logo-img" src="client-mercedes.png" alt="ETOILE 58 Mercedes" />
+        <img class="logo-img" src="client-caf-allier.png" alt="CAF Allier" />
+        <img class="logo-img" src="client-fpt.png" alt="FPT" />
+        <img class="logo-img" src="client-itf-nevers.png" alt="ITF Nevers" />
+        <img class="logo-img" src="client-pouilly-sancerre.png" alt="Pouilly-Sancerre" />
+        <!-- loop -->
+        <img class="logo-img" src="client-bourges-basket.png" alt="" />
+        <img class="logo-img" src="client-bricomarche.png" alt="" />
+        <img class="logo-img" src="client-groupama.png" alt="" />
+        <img class="logo-img" src="client-mercedes.png" alt="" />
+        <img class="logo-img" src="client-caf-allier.png" alt="" />
+        <img class="logo-img" src="client-fpt.png" alt="" />
+        <img class="logo-img" src="client-itf-nevers.png" alt="" />
+        <img class="logo-img" src="client-pouilly-sancerre.png" alt="" />
+      </div>
+    </div>
+
+    <div class="kpis reveal">
+      <div class="kpi">
+        <b class="count" data-to="350" data-prefix="+">+0</b>
+        <span>Événements animés</span>
+      </div>
+      <div class="kpi">
+        <b class="count" data-to="5" data-prefix="+">+0</b>
+        <span>Années d'expérience terrain</span>
+      </div>
+      <div class="kpi">
+        <b class="count" data-to="94" data-suffix=" %">0 %</b>
+        <span>De clients qui rebookent</span>
+      </div>
+    </div>
+
+    <div class="testimonials testimonials-single">
+      <div class="quote reveal">
+        <p>"Top, je recommande à 100 % ! Super animation lors de notre séminaire d'entreprise. Antoine sait s'adapter à tous les thèmes et toutes les demandes."</p>
+        <div class="who">
+          <div class="avatar">AD</div>
+          <div><b>Aurélie Demonfaucon</b><small>Directrice · ETOILE 58 (Mercedes)</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section>
+  <div class="shell faq-wrap">
+    <div>
+      <div class="section-eyebrow">Questions fréquentes</div>
+      <h2 class="section-title reveal">Avant de demander un devis.</h2>
+      <p class="section-lead reveal">L'essentiel en quatre questions. Pour le reste, on en discute.</p>
+    </div>
+    <div class="faq-list" id="faq">
+      <div class="faq-item open">
+        <button class="faq-q">Combien coûte une prestation ? <span class="icon"></span></button>
+        <div class="faq-a">Le tarif dépend du format de votre événement, de la durée et de l'animation choisie. Devis personnalisé sous 48 h, tout compris (transport, installation, animation, démontage).</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Quelle est votre zone d'intervention ? <span class="icon"></span></button>
+        <div class="faq-a">Nous intervenons dans un rayon de 2 h autour de Nevers (Centre-Val de Loire, Bourgogne, Allier, Cher, Loiret, Saône-et-Loire…). Au-delà, c'est possible avec un devis sur-mesure intégrant les frais de déplacement.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Peut-on personnaliser les défis et le branding ? <span class="icon"></span></button>
+        <div class="faq-a">Oui. Les +200 défis intégrés peuvent être sélectionnés selon votre public et vos objectifs. Les 2,9 m² de panneaux branding sont intégralement personnalisables à vos couleurs et votre logo.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Combien de personnes peuvent participer ? <span class="icon"></span></button>
+        <div class="faq-a">Jusqu'à 100 personnes par heure en mode battle 1 vs 1. Le mur fonctionne aussi bien en solo, en équipe, qu'en compétition.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORM ============ -->
+<section class="form-section" id="contact">
+  <div class="shell form-wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Parlons de votre événement</div>
+      <h2 class="section-title">Un brief en deux minutes. Une réponse sous 48 h.</h2>
+      <p class="section-lead">
+        Plus c'est précis, plus la réponse est rapide. Si vous ne savez pas encore tout, ce n'est pas grave — remplissez ce que vous savez, on s'occupe du reste.
+      </p>
+      <p class="contact-foot">Réponse sous 48 h. Devis personnalisé tout compris.</p>
+    </div>
+
+    <form id="brief" novalidate>
+      <div class="field">
+        <label for="f-name">Nom complet</label>
+        <input id="f-name" type="text" placeholder="Marie Lefèvre" required>
+      </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input id="f-email" type="email" placeholder="marie@entreprise.fr" required>
+      </div>
+      <div class="field">
+        <label for="f-phone">Téléphone</label>
+        <input id="f-phone" type="tel" placeholder="06 12 34 56 78">
+      </div>
+      <div class="field">
+        <label for="f-type">Type d'événement</label>
+        <select id="f-type" required>
+          <option value="">Sélectionner —</option>
+          <option>Événement d'entreprise</option>
+          <option>Événement sportif / club</option>
+          <option>Action de sensibilisation</option>
+          <option>Événement particulier (mariage, anniversaire)</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="f-date">Date approximative</label>
+        <input id="f-date" type="date">
+      </div>
+      <div class="field full">
+        <label for="f-msg">Votre projet en quelques mots</label>
+        <textarea id="f-msg" placeholder="Lieu, nombre d'invités, ambiance recherchée, défis souhaités..."></textarea>
+      </div>
+      <div class="form-submit">
+        <small>Réponse sous 48 h ouvrées. Vos données restent privées.</small>
+        <button type="submit" class="btn btn-primary">Envoyer le brief <span class="arr">→</span></button>
+      </div>
+    </form>
+  </div>
+</section>
+
+</main>
+<!-- /PAGE : ACCUEIL -->
+
+<!-- ============================================================
+     PAGE : PRESTATIONS
+     ============================================================ -->
+<main class="page" id="page-prestations" hidden>
+
+<!-- HERO PRESTATIONS -->
+<section class="presta-hero">
+  <div class="shell">
+    <div class="section-eyebrow center">Nos prestations</div>
+    <h1>Quatre univers. Un mur. Une mécanique qui marche partout.</h1>
+    <p class="lead">
+      Que vous animiez un séminaire, un événement sportif, une action de sensibilisation ou une fête privée — le mur s'adapte. Voici comment, en détail.
+    </p>
+    <div class="presta-hero-cta">
+      <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+      <a href="#entreprises" class="btn btn-ghost">Voir les formats</a>
+    </div>
+  </div>
+</section>
+
+<!-- 01 ENTREPRISES -->
+<section id="entreprises" class="presta-section">
+  <div class="shell">
+    <div class="presta-card reveal">
+      <div class="presta-photo entreprises"><span class="num">01 / Entreprises</span></div>
+      <div class="presta-content">
+        <h2>Animer vos équipes. Marquer vos invités.</h2>
+        <p class="baseline">Séminaires, team building, soirées clients, conventions, QVCT.</p>
+        <p>Une animation qui fait participer plutôt que regarder. Vos collaborateurs ne sont plus spectateurs : ils jouent, ils s'affrontent, ils repartent avec un souvenir collectif. Et vous, avec des photos qui circulent encore le lundi suivant.</p>
+        <div class="formats">
+          <div class="format"><span class="f-name">Team building</span><span class="f-desc">Cohésion d'équipe, défis collectifs</span><span class="f-cap">30 — 100 pers.</span></div>
+          <div class="format"><span class="f-name">Séminaire / soirée d'entreprise</span><span class="f-desc">Animation de fond de salle, battles</span><span class="f-cap">50 — 500 pers.</span></div>
+          <div class="format"><span class="f-name">Salon professionnel</span><span class="f-desc">Attracteur de stand, jusqu'à 100 visiteurs / h</span><span class="f-cap">800 visiteurs / jour</span></div>
+          <div class="format"><span class="f-name">QVCT / journée bien-être</span><span class="f-desc">Défis ludiques entre collègues</span><span class="f-cap">Journée complète</span></div>
+          <div class="format"><span class="f-name">Convention / lancement produit</span><span class="f-desc">Animation de coupure entre keynotes</span><span class="f-cap">200+ invités</span></div>
+        </div>
+        <p class="refs"><b>Ils nous ont fait confiance :</b> Bricomarché · CAF Allier · ETOILE 58 (Mercedes) · FPT</p>
+        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis entreprise <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SPORT & CLUBS -->
+<section class="presta-section">
+  <div class="shell">
+    <div class="presta-card reverse reveal">
+      <div class="presta-photo sport"><span class="num">02 / Sport &amp; Clubs</span></div>
+      <div class="presta-content">
+        <h2>Animer la tribune. Valoriser vos partenaires.</h2>
+        <p class="baseline">Clubs sportifs, événements sportifs grand public, courses, salons sport.</p>
+        <p>+50 défis sport directement intégrés : foot, basket, hand, rugby, escrime, tennis, padel. Le mur transforme une mi-temps en moment de jeu collectif, et vos panneaux sponsors deviennent l'arrière-plan des photos et vidéos qui partent sur les réseaux.</p>
+        <div class="formats">
+          <div class="format"><span class="f-name">Match / animation mi-temps</span><span class="f-desc">Battle entre supporters, défis sport</span><span class="f-cap">Pause 15 min</span></div>
+          <div class="format"><span class="f-name">Tournoi / course</span><span class="f-desc">Animation village arrivée / départ</span><span class="f-cap">Journée</span></div>
+          <div class="format"><span class="f-name">Salon sport</span><span class="f-desc">Attracteur de stand thématique</span><span class="f-cap">600 visiteurs / jour</span></div>
+          <div class="format"><span class="f-name">Animation partenaires / VIP</span><span class="f-desc">Branding sponsors intégré aux défis</span><span class="f-cap">Sur-mesure</span></div>
+        </div>
+        <p class="refs"><b>Ils nous ont fait confiance :</b> Tango Bourges Basket · Groupama (Paris-Nice) · ITF Nevers · Course Pouilly-Sancerre</p>
+        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis sport &amp; clubs <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 SENSIBILISATION -->
+<section class="presta-section">
+  <div class="shell">
+    <div class="presta-card reveal">
+      <div class="presta-photo sensibilisation"><span class="num">03 / Sensibilisation</span></div>
+      <div class="presta-content">
+        <h2>Faire passer un message. Sans réunion plombante.</h2>
+        <p class="baseline">Sécurité routière, EPI, gestes &amp; postures, risques distractifs, journées QVCT.</p>
+        <p>Un message qu'on retient parce qu'on l'a vécu, pas écouté. Le mur transforme un sujet sérieux — sécurité, prévention, addictions — en expérience participative qui marque vraiment les esprits. Les défis sont conçus avec votre thématique.</p>
+        <div class="formats">
+          <div class="format"><span class="f-name">Journée sécurité au travail</span><span class="f-desc">Défis EPI, gestes &amp; postures</span><span class="f-cap">Demi / journée complète</span></div>
+          <div class="format"><span class="f-name">Action sécurité routière</span><span class="f-desc">Risques distractifs, alcoolémie, fatigue</span><span class="f-cap">200+ participants</span></div>
+          <div class="format"><span class="f-name">Prévention santé / addictions</span><span class="f-desc">Stupéfiants, alcool, comportements</span><span class="f-cap">Sur-mesure</span></div>
+          <div class="format"><span class="f-name">Sensibilisation grand public</span><span class="f-desc">Salons, opérations terrain, marchés</span><span class="f-cap">600 visiteurs / jour</span></div>
+        </div>
+        <p class="refs"><b>Ils nous ont fait confiance :</b> FPT (Risques Routiers Distractifs)</p>
+        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis sensibilisation <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 PARTICULIERS -->
+<section class="presta-section">
+  <div class="shell">
+    <div class="presta-card reverse reveal">
+      <div class="presta-photo particuliers"><span class="num">04 / Particuliers</span></div>
+      <div class="presta-content">
+        <h2>Un souvenir collectif. Pas une animation oubliée.</h2>
+        <p class="baseline">Mariages, anniversaires marquants, fêtes privées, EVJF / EVG.</p>
+        <p>Le mur fédère les générations, mélange les invités, devient l'endroit où tout le monde se retrouve à 23 h pour la photo de groupe. Une animation qui ne ressemble pas à une animation — plutôt à un moment partagé.</p>
+        <div class="formats">
+          <div class="format"><span class="f-name">Mariage</span><span class="f-desc">Cocktail puis soirée, ambiance évolutive</span><span class="f-cap">80 — 300 invités</span></div>
+          <div class="format"><span class="f-name">Anniversaire marquant</span><span class="f-desc">30, 40, 50 ans — défis et photos</span><span class="f-cap">50 — 200 invités</span></div>
+          <div class="format"><span class="f-name">EVJF / EVG</span><span class="f-desc">Format compact, énergique</span><span class="f-cap">10 — 30 personnes</span></div>
+          <div class="format"><span class="f-name">Fête privée / famille</span><span class="f-desc">Défis adaptés à tous les âges</span><span class="f-cap">Sur-mesure</span></div>
+        </div>
+        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis particulier <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INCLUS -->
+<section class="inclus-section">
+  <div class="shell">
+    <div class="inclus-head reveal">
+      <div class="section-eyebrow center">Toujours inclus</div>
+      <h2 class="section-title center">Le format complet, sans surprise.</h2>
+      <p class="section-lead center">Quel que soit votre événement, six prestations sont incluses dans chaque devis.</p>
+    </div>
+    <div class="inclus-grid">
+      <div class="inclus-card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8"/><path d="M3 13v6h18v-6"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="17" r="1.5"/></svg></div>
+        <h4>Transport</h4>
+        <p>Inclus dans un rayon de 2 h autour de Nevers. Au-delà, sur devis. Logistique entièrement gérée par nos soins.</p>
+      </div>
+      <div class="inclus-card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2v6"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13v3M15 13v3"/></svg></div>
+        <h4>Installation clé en main</h4>
+        <p>Montage et calibration assurés sur place. Vous ne touchez à rien.</p>
+      </div>
+      <div class="inclus-card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5 21v-1a7 7 0 0 1 14 0v1"/></svg></div>
+        <h4>Animateur expert</h4>
+        <p>Antoine ou un de nos animateurs encadre toute la prestation et anime les battles.</p>
+      </div>
+      <div class="inclus-card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M6 7v13h12V7"/><path d="M9 4h6v3H9z"/></svg></div>
+        <h4>Démontage</h4>
+        <p>On débarrasse tout en moins de 90 minutes après la fin de l'événement.</p>
+      </div>
+      <div class="inclus-card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
+        <h4>+200 défis sélectionnés</h4>
+        <p>Sélection des défis adaptée à votre public, vos objectifs et la durée de l'événement.</p>
+      </div>
+      <div class="inclus-card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><circle cx="8" cy="15" r="1.5"/><path d="M12 14h6"/></svg></div>
+        <h4>Branding 2,9 m²</h4>
+        <p>Panneaux personnalisables aux couleurs de votre marque, intégrés au dispositif.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFS -->
+<section>
+  <div class="shell">
+    <div class="pricing-head reveal">
+      <div class="section-eyebrow center">Tarifs</div>
+      <h2 class="section-title center">Sur-mesure, systématiquement.</h2>
+      <p class="section-lead center">
+        Pas de grille tarifaire — aucune prestation ne ressemble à une autre. Le tarif dépend de votre format, votre durée, votre public et la distance. On vous fait une proposition adaptée sous 48 h.
+      </p>
+    </div>
+    <div class="factors-grid reveal">
+      <div class="factor"><div class="factor-num">01</div><h4>Le format</h4><p>Soirée, demi-journée, journée, multi-jours.</p></div>
+      <div class="factor"><div class="factor-num">02</div><h4>Le public</h4><p>30 invités ou 600 visiteurs : la logistique change.</p></div>
+      <div class="factor"><div class="factor-num">03</div><h4>La distance</h4><p>Inclus dans un rayon de 2 h autour de Nevers, au-delà sur devis.</p></div>
+      <div class="factor"><div class="factor-num">04</div><h4>La personnalisation</h4><p>Défis sur-mesure et branding aux couleurs de votre marque.</p></div>
+    </div>
+    <div class="pricing-cta reveal">
+      <p class="pricing-note-sub">Réponse sous 48 h. Devis détaillé tout compris : transport, installation, animateur, défis, branding, démontage.</p>
+      <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+<!-- /PAGE : PRESTATIONS -->
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="shell foot">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <span class="brand">
+        <span class="brand-icon" aria-hidden="true"></span>
+        <span class="brand-word">Dynam<span class="ap">'</span>Event</span>
+      </span>
+      <span style="color:var(--text-faint);">© 2026</span>
+    </div>
+    <div class="foot-links">
+      <a href="#">Mentions légales</a>
+      <a href="#">CGU</a>
+      <button class="rgpd" aria-label="Gérer mes préférences cookies">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="9" r=".7" fill="currentColor"/><circle cx="15" cy="11" r=".7" fill="currentColor"/><circle cx="10" cy="15" r=".7" fill="currentColor"/></svg>
+        Cookies
+      </button>
+    </div>
+    <div class="social" style="justify-content:flex-end;">
+      <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+      <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v4H4zM4 10h4v10H4zM10 10h4v1.5c.7-1 1.9-1.8 3.5-1.8 3 0 3.5 2 3.5 4.5V20h-4v-5c0-1.3-.4-2.1-1.5-2.1S14 13.7 14 15v5h-4z"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ FLOATING DEVIS ============ -->
+<a href="#contact" data-page="accueil" data-anchor="contact" class="float-cta" id="floatCta">
+  <span class="pulse"></span>
+  Devis en 48 h
+</a>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ============ LED WALL — 8 × 5 grid ============ */
+const COLORS = ['#FFD700', '#B026FF', '#FF6B35', '#FF1493', '#00D4FF'];
+const COLS = 8, ROWS = 5;
+const LAYER_SEL = '.led-core, .led-glow, .led-halo';
+
+const overlay = document.getElementById('overlay');
+const cubes = [];
+
+for (let i = 0; i < COLS * ROWS; i++) {
+  const cube = document.createElement('div');
+  cube.className = 'cube';
+  cube.dataset.idx = i;
+  cube.innerHTML = `
+    <div class="led-halo" aria-hidden="true"></div>
+    <div class="led-glow" aria-hidden="true"></div>
+    <div class="led-core" aria-hidden="true"></div>
+  `;
+  cube.addEventListener('pointerenter', () => {
+    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+    cube.style.setProperty('--c', c);
+    // hand the layers back to CSS so the .is-hot rule wins over any ambient inline styles
+    cube.querySelectorAll(LAYER_SEL).forEach(l => { l.style.opacity = ''; l.style.transition = ''; });
+    cube.classList.add('is-hot');
+  });
+  cube.addEventListener('pointerleave', () => {
+    cube.classList.remove('is-hot');
+  });
+  overlay.appendChild(cube);
+  cubes.push(cube);
+}
+
+/* ============ Passive ambient animation ============
+   Discreet: 1–2 cubes lit at once, 1.5–3 s between starts,
+   never the same cube twice in a row, random color per cycle. */
+
+const busyCubes = new Set();
+let lastAmbientIdx = -1;
+
+function lightAmbient() {
+  // candidates: not lit, not hovered, not the same as previous
+  let free = cubes.filter((c, i) => !busyCubes.has(i) && !c.classList.contains('is-hot') && i !== lastAmbientIdx);
+  if (!free.length) free = cubes.filter((c, i) => !busyCubes.has(i) && !c.classList.contains('is-hot'));
+  if (!free.length) return;
+
+  const cube = free[Math.floor(Math.random() * free.length)];
+  const idx = +cube.dataset.idx;
+  busyCubes.add(idx);
+  lastAmbientIdx = idx;
+
+  const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  cube.style.setProperty('--c', color);
+  const layers = cube.querySelectorAll(LAYER_SEL);
+  // fade-in 800ms
+  layers.forEach(l => { l.style.transition = 'opacity 800ms ease'; });
+  requestAnimationFrame(() => layers.forEach(l => { l.style.opacity = '1'; }));
+  // hold 1500ms, then fade-out 1000ms
+  setTimeout(() => {
+    layers.forEach(l => { l.style.transition = 'opacity 1000ms ease'; l.style.opacity = '0'; });
+  }, 800 + 1500);
+  // cleanup so hover can take over
+  setTimeout(() => {
+    layers.forEach(l => { l.style.transition = ''; l.style.opacity = ''; });
+    busyCubes.delete(idx);
+  }, 800 + 1500 + 1000);
+}
+
+function ambientLoop() {
+  // keep 2-3 cubes alight at any time → wall feels alive without being busy
+  if (busyCubes.size < 2) lightAmbient();
+  else if (busyCubes.size < 3 && Math.random() > 0.4) lightAmbient();
+}
+
+let ambientStarted = false;
+function startAmbient() {
+  if (ambientStarted) return;
+  ambientStarted = true;
+  // initial burst so the wall isn't dead on arrival
+  setTimeout(lightAmbient, 200);
+  setTimeout(lightAmbient, 700);
+  setTimeout(lightAmbient, 1300);
+  // faster cadence for a more living feel
+  setInterval(ambientLoop, 1100);
+}
+const photo = new Image();
+photo.src = 'wall-hero.jpg';
+photo.onload = startAmbient;
+setTimeout(startAmbient, 2000); // fallback if onload doesn't fire
+
+/* ============ SPA ROUTING — show / hide pages ============ */
+(() => {
+  const pages = document.querySelectorAll('.page');
+  if (!pages.length) return;
+  const menuLinks = document.querySelectorAll('.menu a[data-page]');
+
+  function showPage(name, anchor) {
+    let found = false;
+    pages.forEach(p => {
+      const match = p.id === 'page-' + name;
+      p.hidden = !match;
+      if (match) found = true;
+    });
+    if (!found) { // fallback to accueil
+      name = 'accueil';
+      const home = document.getElementById('page-accueil');
+      if (home) home.hidden = false;
+    }
+    menuLinks.forEach(a => a.classList.toggle('active', a.dataset.page === name));
+
+    if (anchor) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(anchor);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' in window.scrollTo ? 'instant' : 'auto' });
+    }
+
+    const newHash = '#' + name + (anchor ? '/' + anchor : '');
+    if (location.hash !== newHash) history.replaceState(null, '', newHash);
+  }
+
+  // Intercept clicks on any element with data-page
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-page]');
+    if (!trigger) return;
+    e.preventDefault();
+    showPage(trigger.dataset.page, trigger.dataset.anchor || null);
+  });
+
+  // Initial state from URL hash
+  const hash = location.hash.slice(1);
+  if (hash) {
+    const [page, anchor] = hash.split('/');
+    showPage(page || 'accueil', anchor || null);
+  } else {
+    showPage('accueil', null);
+  }
+
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.slice(1);
+    const [page, anchor] = h.split('/');
+    showPage(page || 'accueil', anchor || null);
+  });
+})();
+
+/* ============ STICKY HEADER scroll state ============ */
+const header = document.getElementById('header');
+function onScroll() {
+  if (window.scrollY > 80) header.classList.add('scrolled');
+  else header.classList.remove('scrolled');
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+/* ============ TOGGLE Pour qui ============ */
+const toggle = document.getElementById('toggle');
+const pill = document.getElementById('togglePill');
+const tabs = toggle.querySelectorAll('button');
+
+function movePill(btn) {
+  pill.style.left = btn.offsetLeft + 'px';
+  pill.style.width = btn.offsetWidth + 'px';
+}
+function refreshPill() { movePill(toggle.querySelector('button.active')); }
+refreshPill();
+window.addEventListener('resize', refreshPill);
+window.addEventListener('load', refreshPill);
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+    movePill(btn);
+    const target = btn.dataset.target;
+    document.querySelectorAll('.who-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('pane-' + target).classList.add('active');
+  });
+});
+
+/* ============ FAQ accordion ============ */
+document.querySelectorAll('#faq .faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => {
+    const open = item.classList.contains('open');
+    document.querySelectorAll('#faq .faq-item').forEach(i => i.classList.remove('open'));
+    if (!open) item.classList.add('open');
+  });
+});
+
+/* ============ Reveal on scroll ============
+   Enhancement; safety fallback so content is never stranded. */
+const revealEls = document.querySelectorAll('.reveal');
+const showAll = () => revealEls.forEach(el => el.classList.add('in'));
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+  revealEls.forEach(el => io.observe(el));
+  requestAnimationFrame(() => {
+    revealEls.forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.95) el.classList.add('in');
+    });
+  });
+  setTimeout(showAll, 2500);
+} else {
+  showAll();
+}
+
+/* ============ Floating cubes — random light-up ============ */
+(() => {
+  const fcubes = document.querySelectorAll('.fcube');
+  if (!fcubes.length) return;
+  function blink() {
+    // light up 1 or 2 random cubes for 1.5–2.5s
+    const n = Math.random() > 0.5 ? 2 : 1;
+    const picks = new Set();
+    while (picks.size < n) picks.add(Math.floor(Math.random() * fcubes.length));
+    picks.forEach(i => {
+      const cube = fcubes[i];
+      cube.classList.add('lit');
+      setTimeout(() => cube.classList.remove('lit'), 1500 + Math.random() * 1000);
+    });
+  }
+  setTimeout(blink, 600);
+  setInterval(blink, 2200);
+})();
+
+/* ============ Count-up numbers on scroll ============ */
+function animateCount(el) {
+  if (el.dataset.done) return;
+  el.dataset.done = '1';
+  const to = parseFloat(el.dataset.to);
+  const decimals = parseInt(el.dataset.decimals || '0', 10);
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  const duration = 1600;
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min((now - start) / duration, 1);
+    // easeOutCubic for smooth deceleration
+    const eased = 1 - Math.pow(1 - t, 3);
+    const value = to * eased;
+    el.textContent = prefix + value.toFixed(decimals).replace('.', ',') + suffix;
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = prefix + to.toFixed(decimals).replace('.', ',') + suffix;
+  }
+  requestAnimationFrame(frame);
+}
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { animateCount(e.target); countObs.unobserve(e.target); } });
+}, { threshold: 0.4 });
+document.querySelectorAll('.count').forEach(el => countObs.observe(el));
+
+/* ============ Form ============ */
+document.getElementById('brief').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.innerHTML = 'Envoyé. À très vite ✓';
+  btn.style.background = 'linear-gradient(90deg, #1FA8E0, #9C27B0, #E91E63)';
+  btn.style.color = '#fff';
+});
+</script>
+</body>
+</html>
