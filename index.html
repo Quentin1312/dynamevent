@@ -1325,24 +1325,15 @@
   .gerant-photo {
     aspect-ratio: 1;
     border-radius: 16px;
-    background:
-      radial-gradient(circle at 30% 30%, rgba(31,168,224,0.40), transparent 60%),
-      radial-gradient(circle at 70% 80%, rgba(156,39,176,0.40), transparent 60%),
-      radial-gradient(circle at 50% 50%, rgba(233,30,99,0.20), transparent 70%),
-      #0c0c0c;
+    background: #0c0c0c url("antoine.png") center / cover no-repeat;
     border: 1px solid var(--line);
     position: relative;
     overflow: hidden;
-    display: grid;
-    place-items: center;
   }
   .gerant-photo::after {
-    content: "A";
-    font-family: var(--stencil);
-    font-size: 96px;
-    color: rgba(255,255,255,0.18);
-    letter-spacing: -0.03em;
-    line-height: 1;
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(0,0,0,0) 60%, rgba(0,0,0,0.45));
+    pointer-events: none;
   }
   .gerant-content > * + * { margin-top: 18px; }
   .gerant-content h3 {
@@ -2019,7 +2010,7 @@
           </span>
           <div>
             <div class="label">Email</div>
-            <div class="value">contact@dynamevent.com</div>
+            <div class="value">dynamevent.services@gmail.com</div>
           </div>
         </div>
         <div class="contact-row">
@@ -2087,7 +2078,7 @@
     <div class="shell">
       <div class="gerant-head reveal">
         <div class="section-eyebrow center">Qui s'occupe de vous</div>
-        <h2 class="section-title center">Antoine, fondateur.</h2>
+        <h2 class="section-title center">Antoine Mistretta, fondateur.</h2>
         <p class="section-lead center">
           Le créateur du concept, et celui qui répondra à votre message.
         </p>
@@ -2096,18 +2087,21 @@
       <div class="gerant-card reveal">
         <div class="gerant-photo" aria-hidden="true"></div>
         <div class="gerant-content">
-          <h3>Antoine</h3>
-          <div class="role">Fondateur · Animateur · Concepteur des défis</div>
+          <h3>Antoine Mistretta</h3>
+          <div class="role">Fondateur · Animateur</div>
           <p>
-            Ancien étudiant de l'IUT de Nevers, Antoine a fondé Dynam'Event après avoir vu trop d'événements où l'animation se résumait à un photobooth oublié dès le lendemain. L'idée : une expérience qui se vit, se partage, et reste dans les mémoires.
+            Avant Dynam'Event, j'ai passé 7 années comme responsable commercial à l'USON Nevers Rugby. J'y ai accompagné des dizaines de partenaires et organisé des centaines d'événements — c'est là que j'ai mesuré ce que pouvait apporter une animation vraiment vivante à un moment de marque.
           </p>
           <p>
-            Aujourd'hui, il porte le concept de bout en bout : du brief avec vous, à la sélection des défis, jusqu'à l'animation sur place. C'est lui qui vous répond, et c'est lui que vous verrez le jour J.
+            En lançant Dynam'Event, je voulais transformer cette expérience en un concept clé en main : un mur interactif digital, des centaines de défis prêts à jouer, et une promesse simple — du fun, de l'impact et des sourires, sans rien à gérer de votre côté.
+          </p>
+          <p>
+            Originaire et ancré à Nevers, je connais le tissu local et je crois au pouvoir de l'événement pour renforcer les liens, créer des souvenirs et valoriser les entreprises et associations de notre territoire. Mon objectif : créer des moments qui marquent, rapprochent et dynamisent vos prochains temps forts.
           </p>
           <p class="gerant-quote">
-            "Une bonne animation, c'est celle dont on parle encore le lundi suivant."
+            "Rendre chaque événement inoubliable, humain et interactif."
           </p>
-          <p class="gerant-signature">— Antoine</p>
+          <p class="gerant-signature">— Antoine Mistretta</p>
         </div>
       </div>
     </div>
