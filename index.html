@@ -1232,6 +1232,182 @@
     .format { grid-template-columns: 1fr; gap: 4px; }
     .format .f-cap { text-align: left; }
   }
+
+  /* ============================================================
+     CONTACT — page-contact content
+     ============================================================ */
+  .contact-hero {
+    padding: clamp(80px, 11vw, 160px) 0 clamp(40px, 5vw, 70px);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(50% 40% at 50% 30%, rgba(31,168,224,0.10), transparent 70%),
+      radial-gradient(40% 35% at 80% 70%, rgba(233,30,99,0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .contact-hero .shell { position: relative; z-index: 2; }
+  .contact-hero h1 {
+    font-size: clamp(44px, 5.6vw, 80px);
+    line-height: 1.02; letter-spacing: -0.03em;
+    max-width: 16ch; margin: 0 auto 22px;
+  }
+  .contact-hero .lead {
+    color: var(--text-dim);
+    font-size: clamp(16px, 1.15vw, 19px);
+    max-width: 640px; margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .contact-form-section { padding-top: clamp(50px, 6vw, 90px); padding-bottom: clamp(60px, 7vw, 100px); }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    gap: clamp(40px, 5vw, 80px);
+    align-items: start;
+  }
+  .contact-aside {
+    display: flex; flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 100px;
+  }
+  .contact-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .contact-row:last-child { border-bottom: 0; }
+  .contact-row .ico {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center;
+    background: rgba(31,168,224,0.08);
+    border: 1px solid rgba(31,168,224,0.20);
+    color: var(--brand-cyan);
+  }
+  .contact-row .ico svg { width: 18px; height: 18px; stroke-width: 1.7; }
+  .contact-row .label {
+    font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-faint); margin-bottom: 3px;
+  }
+  .contact-row .value {
+    font-size: 15.5px; color: var(--text); font-weight: 500;
+  }
+
+  /* GÉRANT */
+  .gerant-section {
+    background: #080808;
+    border-top: 1px solid var(--line);
+    padding: clamp(70px, 8vw, 120px) 0;
+  }
+  .gerant-head {
+    text-align: center; max-width: 600px;
+    margin: 0 auto clamp(40px, 5vw, 70px);
+  }
+  .gerant-card {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: clamp(40px, 5vw, 70px);
+    align-items: start;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(30px, 4vw, 50px);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.012);
+  }
+  .gerant-photo {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(31,168,224,0.40), transparent 60%),
+      radial-gradient(circle at 70% 80%, rgba(156,39,176,0.40), transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(233,30,99,0.20), transparent 70%),
+      #0c0c0c;
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+  .gerant-photo::after {
+    content: "A";
+    font-family: var(--stencil);
+    font-size: 96px;
+    color: rgba(255,255,255,0.18);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .gerant-content > * + * { margin-top: 18px; }
+  .gerant-content h3 {
+    font-size: clamp(26px, 2.6vw, 32px);
+    line-height: 1.1; letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .gerant-content .role {
+    color: var(--brand-cyan);
+    font-size: 14px; font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-bottom: 20px;
+  }
+  .gerant-content p {
+    color: var(--text-dim);
+    font-size: 16px; line-height: 1.7;
+    max-width: 56ch;
+  }
+  .gerant-quote {
+    font-style: italic;
+    color: var(--text) !important;
+    font-size: 18px !important;
+    border-left: 2px solid var(--brand-cyan);
+    padding-left: 18px;
+    margin-top: 22px !important;
+  }
+  .gerant-signature {
+    font-family: var(--stencil);
+    color: var(--text-dim) !important;
+    font-size: 14px !important;
+    letter-spacing: 0.1em;
+    margin-top: 16px !important;
+  }
+
+  /* "Parlons-en" CTA banner replacing the home form */
+  .home-cta-banner {
+    text-align: center;
+    background:
+      radial-gradient(50% 40% at 50% 50%, rgba(31,168,224,0.10), transparent 65%),
+      #080808;
+    border-top: 1px solid var(--line);
+  }
+  .home-cta-banner h2 {
+    font-size: clamp(36px, 4vw, 56px);
+    line-height: 1.02; letter-spacing: -0.03em;
+    max-width: 22ch;
+    margin: 0 auto 22px;
+  }
+  .home-cta-banner p {
+    color: var(--text-dim);
+    font-size: clamp(16px, 1.15vw, 19px);
+    max-width: 600px;
+    margin: 0 auto 38px;
+    line-height: 1.6;
+  }
+  .home-cta-banner-buttons {
+    display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+  }
+
+  @media (max-width: 980px) {
+    .contact-grid { grid-template-columns: 1fr; }
+    .contact-aside { position: static; }
+    .gerant-card { grid-template-columns: 1fr; max-width: 540px; }
+    .gerant-photo { max-width: 240px; margin: 0 auto; }
+  }
 </style>
 </head>
 <body>
@@ -1248,7 +1424,7 @@
         <a href="#accueil" class="active" data-page="accueil" role="menuitem">Accueil</a>
         <a href="#prestations" data-page="prestations" role="menuitem">Nos prestations</a>
         <a href="#blog" data-page="blog" role="menuitem">Blog</a>
-        <a href="#contact" data-page="accueil" data-anchor="contact" role="menuitem">Contact</a>
+        <a href="#contact" data-page="contact" role="menuitem">Contact</a>
       </div>
       <div class="social" aria-label="Réseaux sociaux">
         <a href="#" aria-label="Instagram">
@@ -1302,7 +1478,7 @@
           Notre mur interactif déclenche plus de 200 défis de mémoire, réflexe, sport ou cohésion. Solo, en équipe ou en battle 1 vs 1, vos invités s'engagent — loin des animations passives classiques.
         </p>
         <div class="hero-cta">
-          <a href="#contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+          <a href="#contact" data-page="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
           <a href="#le-mur" class="btn btn-ghost">Entrer dans le jeu</a>
         </div>
         <div class="hero-stats">
@@ -1463,7 +1639,7 @@
             <span class="chip">Conventions</span>
           </div>
           <p class="refs"><b>Ils nous ont fait confiance :</b><br/>Bricomarché · CAF Allier · ETOILE 58 (Mercedes) · FPT</p>
-          <a href="#contact" class="btn btn-primary">Devis entreprise <span class="arr">→</span></a>
+          <a href="#contact" data-page="contact" class="btn btn-primary">Devis entreprise <span class="arr">→</span></a>
         </div>
         <div class="who-visual pro">
           <div class="tag">Séminaire · 800 collaborateurs</div>
@@ -1483,7 +1659,7 @@
             <span class="chip">Valorisation partenaires</span>
           </div>
           <p class="refs"><b>Ils nous ont fait confiance :</b><br/>Tango Bourges Basket · Groupama (Paris-Nice) · ITF Nevers · Course Pouilly-Sancerre</p>
-          <a href="#contact" class="btn btn-primary">Devis sport &amp; clubs <span class="arr">→</span></a>
+          <a href="#contact" data-page="contact" class="btn btn-primary">Devis sport &amp; clubs <span class="arr">→</span></a>
         </div>
         <div class="who-visual sport">
           <div class="tag">Tournoi ITF · Nevers</div>
@@ -1504,7 +1680,7 @@
             <span class="chip">QVCT</span>
           </div>
           <p class="refs"><b>Ils nous ont fait confiance :</b><br/>FPT · Risques Routiers Distractifs</p>
-          <a href="#contact" class="btn btn-primary">Devis sensibilisation <span class="arr">→</span></a>
+          <a href="#contact" data-page="contact" class="btn btn-primary">Devis sensibilisation <span class="arr">→</span></a>
         </div>
         <div class="who-visual sens">
           <div class="tag">Journée sécurité · FPT</div>
@@ -1522,7 +1698,7 @@
             <span class="chip">EVJF / EVG</span>
             <span class="chip">Fêtes privées</span>
           </div>
-          <a href="#contact" class="btn btn-primary">Devis particulier <span class="arr">→</span></a>
+          <a href="#contact" data-page="contact" class="btn btn-primary">Devis particulier <span class="arr">→</span></a>
         </div>
         <div class="who-visual priv">
           <div class="tag">Mariage · Centre-Val de Loire</div>
@@ -1616,54 +1792,15 @@
 </section>
 
 <!-- ============ FORM ============ -->
-<section class="form-section" id="contact">
-  <div class="shell form-wrap">
-    <div class="reveal">
-      <div class="section-eyebrow">Parlons de votre événement</div>
-      <h2 class="section-title">Un brief en deux minutes. Une réponse sous 48 h.</h2>
-      <p class="section-lead">
-        Plus c'est précis, plus la réponse est rapide. Si vous ne savez pas encore tout, ce n'est pas grave — remplissez ce que vous savez, on s'occupe du reste.
-      </p>
-      <p class="contact-foot">Réponse sous 48 h. Devis personnalisé tout compris.</p>
+<section class="home-cta-banner">
+  <div class="shell reveal">
+    <div class="section-eyebrow center">On en parle ?</div>
+    <h2>Votre projet mérite un format qui colle à votre événement.</h2>
+    <p>Décrivez-nous votre événement en quelques lignes — Antoine vous revient avec une proposition personnalisée sous 48 h.</p>
+    <div class="home-cta-banner-buttons">
+      <a href="#contact" data-page="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+      <a href="#prestations" data-page="prestations" class="btn btn-ghost">Voir les prestations</a>
     </div>
-
-    <form id="brief" novalidate>
-      <div class="field">
-        <label for="f-name">Nom complet</label>
-        <input id="f-name" type="text" placeholder="Marie Lefèvre" required>
-      </div>
-      <div class="field">
-        <label for="f-email">Email</label>
-        <input id="f-email" type="email" placeholder="marie@entreprise.fr" required>
-      </div>
-      <div class="field">
-        <label for="f-phone">Téléphone</label>
-        <input id="f-phone" type="tel" placeholder="06 12 34 56 78">
-      </div>
-      <div class="field">
-        <label for="f-type">Type d'événement</label>
-        <select id="f-type" required>
-          <option value="">Sélectionner —</option>
-          <option>Événement d'entreprise</option>
-          <option>Événement sportif / club</option>
-          <option>Action de sensibilisation</option>
-          <option>Événement particulier (mariage, anniversaire)</option>
-          <option>Autre</option>
-        </select>
-      </div>
-      <div class="field full">
-        <label for="f-date">Date approximative</label>
-        <input id="f-date" type="date">
-      </div>
-      <div class="field full">
-        <label for="f-msg">Votre projet en quelques mots</label>
-        <textarea id="f-msg" placeholder="Lieu, nombre d'invités, ambiance recherchée, défis souhaités..."></textarea>
-      </div>
-      <div class="form-submit">
-        <small>Réponse sous 48 h ouvrées. Vos données restent privées.</small>
-        <button type="submit" class="btn btn-primary">Envoyer le brief <span class="arr">→</span></button>
-      </div>
-    </form>
   </div>
 </section>
 
@@ -1684,7 +1821,7 @@
       Que vous animiez un séminaire, un événement sportif, une action de sensibilisation ou une fête privée — le mur s'adapte. Voici comment, en détail.
     </p>
     <div class="presta-hero-cta">
-      <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+      <a href="#contact" data-page="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
       <a href="#entreprises" class="btn btn-ghost">Voir les formats</a>
     </div>
   </div>
@@ -1707,7 +1844,7 @@
           <div class="format"><span class="f-name">Convention / lancement produit</span><span class="f-desc">Animation de coupure entre keynotes</span><span class="f-cap">200+ invités</span></div>
         </div>
         <p class="refs"><b>Ils nous ont fait confiance :</b> Bricomarché · CAF Allier · ETOILE 58 (Mercedes) · FPT</p>
-        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis entreprise <span class="arr">→</span></a>
+        <a href="#contact" data-page="contact" class="btn btn-primary">Devis entreprise <span class="arr">→</span></a>
       </div>
     </div>
   </div>
@@ -1729,7 +1866,7 @@
           <div class="format"><span class="f-name">Animation partenaires / VIP</span><span class="f-desc">Branding sponsors intégré aux défis</span><span class="f-cap">Sur-mesure</span></div>
         </div>
         <p class="refs"><b>Ils nous ont fait confiance :</b> Tango Bourges Basket · Groupama (Paris-Nice) · ITF Nevers · Course Pouilly-Sancerre</p>
-        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis sport &amp; clubs <span class="arr">→</span></a>
+        <a href="#contact" data-page="contact" class="btn btn-primary">Devis sport &amp; clubs <span class="arr">→</span></a>
       </div>
     </div>
   </div>
@@ -1751,7 +1888,7 @@
           <div class="format"><span class="f-name">Sensibilisation grand public</span><span class="f-desc">Salons, opérations terrain, marchés</span><span class="f-cap">600 visiteurs / jour</span></div>
         </div>
         <p class="refs"><b>Ils nous ont fait confiance :</b> FPT (Risques Routiers Distractifs)</p>
-        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis sensibilisation <span class="arr">→</span></a>
+        <a href="#contact" data-page="contact" class="btn btn-primary">Devis sensibilisation <span class="arr">→</span></a>
       </div>
     </div>
   </div>
@@ -1772,7 +1909,7 @@
           <div class="format"><span class="f-name">EVJF / EVG</span><span class="f-desc">Format compact, énergique</span><span class="f-cap">10 — 30 personnes</span></div>
           <div class="format"><span class="f-name">Fête privée / famille</span><span class="f-desc">Défis adaptés à tous les âges</span><span class="f-cap">Sur-mesure</span></div>
         </div>
-        <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Devis particulier <span class="arr">→</span></a>
+        <a href="#contact" data-page="contact" class="btn btn-primary">Devis particulier <span class="arr">→</span></a>
       </div>
     </div>
   </div>
@@ -1839,13 +1976,145 @@
     </div>
     <div class="pricing-cta reveal">
       <p class="pricing-note-sub">Réponse sous 48 h. Devis détaillé tout compris : transport, installation, animateur, défis, branding, démontage.</p>
-      <a href="#contact" data-page="accueil" data-anchor="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
+      <a href="#contact" data-page="contact" class="btn btn-primary">Demander un devis <span class="arr">→</span></a>
     </div>
   </div>
 </section>
 
 </main>
 <!-- /PAGE : PRESTATIONS -->
+
+<!-- ============================================================
+     PAGE : CONTACT
+     ============================================================ -->
+<main class="page" id="page-contact" hidden>
+
+  <!-- HERO -->
+  <section class="contact-hero">
+    <div class="shell">
+      <div class="section-eyebrow center">Contact</div>
+      <h1>Parlons de votre projet.</h1>
+      <p class="lead">
+        Décrivez-nous votre événement en quelques lignes — Antoine vous revient avec une proposition personnalisée sous 48 h. Transport, installation, animateur et démontage inclus.
+      </p>
+    </div>
+  </section>
+
+  <!-- FORM + INFOS -->
+  <section class="contact-form-section">
+    <div class="shell contact-grid">
+      <aside class="contact-aside">
+        <div class="contact-row">
+          <span class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.18 4.18 2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </span>
+          <div>
+            <div class="label">Téléphone</div>
+            <div class="value">06 XX XX XX XX</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+          </span>
+          <div>
+            <div class="label">Email</div>
+            <div class="value">contact@dynamevent.com</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <div>
+            <div class="label">Localisation</div>
+            <div class="value">Basé à Nevers · 2 h autour</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <span class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <div>
+            <div class="label">Délai de réponse</div>
+            <div class="value">Sous 48 h ouvrées</div>
+          </div>
+        </div>
+      </aside>
+
+      <form id="brief" novalidate>
+        <div class="field">
+          <label for="f-name">Nom complet</label>
+          <input id="f-name" type="text" placeholder="Marie Lefèvre" required>
+        </div>
+        <div class="field">
+          <label for="f-email">Email</label>
+          <input id="f-email" type="email" placeholder="marie@entreprise.fr" required>
+        </div>
+        <div class="field">
+          <label for="f-phone">Téléphone</label>
+          <input id="f-phone" type="tel" placeholder="06 12 34 56 78">
+        </div>
+        <div class="field">
+          <label for="f-type">Type d'événement</label>
+          <select id="f-type" required>
+            <option value="">Sélectionner —</option>
+            <option>Événement d'entreprise</option>
+            <option>Événement sportif / club</option>
+            <option>Action de sensibilisation</option>
+            <option>Événement particulier (mariage, anniversaire)</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="f-date">Date approximative</label>
+          <input id="f-date" type="date">
+        </div>
+        <div class="field full">
+          <label for="f-msg">Votre projet en quelques mots</label>
+          <textarea id="f-msg" placeholder="Lieu, nombre d'invités, ambiance recherchée, défis souhaités..."></textarea>
+        </div>
+        <div class="form-submit">
+          <small>Réponse sous 48 h ouvrées. Vos données restent privées.</small>
+          <button type="submit" class="btn btn-primary">Envoyer le brief <span class="arr">→</span></button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- GÉRANT -->
+  <section class="gerant-section">
+    <div class="shell">
+      <div class="gerant-head reveal">
+        <div class="section-eyebrow center">Qui s'occupe de vous</div>
+        <h2 class="section-title center">Antoine, fondateur.</h2>
+        <p class="section-lead center">
+          Le créateur du concept, et celui qui répondra à votre message.
+        </p>
+      </div>
+
+      <div class="gerant-card reveal">
+        <div class="gerant-photo" aria-hidden="true"></div>
+        <div class="gerant-content">
+          <h3>Antoine</h3>
+          <div class="role">Fondateur · Animateur · Concepteur des défis</div>
+          <p>
+            Ancien étudiant de l'IUT de Nevers, Antoine a fondé Dynam'Event après avoir vu trop d'événements où l'animation se résumait à un photobooth oublié dès le lendemain. L'idée : une expérience qui se vit, se partage, et reste dans les mémoires.
+          </p>
+          <p>
+            Aujourd'hui, il porte le concept de bout en bout : du brief avec vous, à la sélection des défis, jusqu'à l'animation sur place. C'est lui qui vous répond, et c'est lui que vous verrez le jour J.
+          </p>
+          <p class="gerant-quote">
+            "Une bonne animation, c'est celle dont on parle encore le lundi suivant."
+          </p>
+          <p class="gerant-signature">— Antoine</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<!-- /PAGE : CONTACT -->
 
 <!-- ============ FOOTER ============ -->
 <footer>
@@ -1873,7 +2142,7 @@
 </footer>
 
 <!-- ============ FLOATING DEVIS ============ -->
-<a href="#contact" data-page="accueil" data-anchor="contact" class="float-cta" id="floatCta">
+<a href="#contact" data-page="contact" class="float-cta" id="floatCta">
   <span class="pulse"></span>
   Devis en 48 h
 </a>
