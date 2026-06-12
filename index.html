@@ -1234,6 +1234,114 @@
   }
 
   /* ============================================================
+     CAS CLIENTS — slider vidéos
+     ============================================================ */
+  .cases-section { padding: clamp(80px, 9vw, 130px) 0; }
+  .cases-head { max-width: 620px; }
+  .cases-slider-wrap { margin-top: clamp(40px, 5vw, 64px); }
+  .cases-slider {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--gutter);
+    padding-left: max(var(--gutter), calc((100vw - var(--shell)) / 2 + var(--gutter)));
+    padding-right: var(--gutter);
+    padding-bottom: 24px;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+    scrollbar-width: thin;
+  }
+  .cases-slider::-webkit-scrollbar { height: 6px; }
+  .cases-slider::-webkit-scrollbar-track { background: transparent; }
+  .cases-slider::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+  .cases-slider::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
+
+  .case-card {
+    flex: 0 0 clamp(280px, 28vw, 340px);
+    scroll-snap-align: start;
+    display: block;
+    border-radius: 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    cursor: pointer;
+  }
+  .case-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--line-2);
+    box-shadow: 0 20px 50px -20px rgba(31,168,224,0.30);
+  }
+
+  .case-thumb {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: #111;
+  }
+  .case-thumb::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(0,0,0,0) 45%, rgba(0,0,0,0.55));
+    pointer-events: none;
+  }
+  .case-thumb .play {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    display: grid; place-items: center;
+    z-index: 2;
+    transition: transform .3s ease;
+    box-shadow: 0 10px 30px -8px rgba(0,0,0,0.6);
+  }
+  .case-card:hover .case-thumb .play { transform: translate(-50%, -50%) scale(1.08); }
+  .case-thumb .play svg { fill: #0A0A0A; margin-left: 3px; }
+  .case-thumb .client-logo {
+    position: absolute; top: 14px; left: 14px;
+    max-height: 26px; width: auto; max-width: 110px;
+    opacity: 0.95;
+    filter: brightness(1.3) grayscale(0.2);
+    z-index: 2;
+    object-fit: contain;
+  }
+  .case-meta { padding: 18px 20px 22px; }
+  .case-meta .tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand-cyan);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .case-meta h4 {
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .case-meta p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Thumb gradients per client */
+  .thumb-1 { background: linear-gradient(135deg, #FF6B35, #E91E63); }
+  .thumb-2 { background: linear-gradient(135deg, #1FA8E0, #00D4FF); }
+  .thumb-3 { background: linear-gradient(135deg, #9C27B0, #1FA8E0); }
+  .thumb-4 { background: linear-gradient(135deg, #0a4d6e, #1FA8E0); }
+  .thumb-5 { background: linear-gradient(135deg, #FFD700, #FF6B35); }
+  .thumb-6 { background: linear-gradient(135deg, #E91E63, #B026FF); }
+  .thumb-7 { background: linear-gradient(135deg, #B026FF, #E91E63); }
+  .thumb-8 { background: linear-gradient(135deg, #9C27B0, #FF1493); }
+
+  @media (max-width: 760px) {
+    .case-card { flex-basis: 80vw; }
+  }
+
+  /* ============================================================
      CONTACT — page-contact content
      ============================================================ */
   .contact-hero {
@@ -1695,6 +1803,120 @@
           <div class="tag">Mariage · Centre-Val de Loire</div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAS CLIENTS — slider ============ -->
+<section class="cases-section">
+  <div class="shell">
+    <div class="cases-head reveal">
+      <div class="section-eyebrow">Cas clients</div>
+      <h2 class="section-title">Le mur en vrai. Chez eux.</h2>
+      <p class="section-lead">
+        Quelques moments capturés sur place, depuis 2021. Faites défiler pour découvrir.
+      </p>
+    </div>
+  </div>
+  <div class="cases-slider-wrap reveal">
+    <div class="cases-slider" role="region" aria-label="Vidéos cas clients">
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-1">
+          <img src="client-bourges-basket.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Sport</span>
+          <h4>Tango Bourges Basket</h4>
+          <p>Animation mi-temps · Pro B</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-2">
+          <img src="client-bricomarche.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Team building</span>
+          <h4>Bricomarché</h4>
+          <p>Team building national</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-3">
+          <img src="client-groupama.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Sport</span>
+          <h4>Groupama · Paris-Nice</h4>
+          <p>Village course cycliste</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-4">
+          <img src="client-fpt.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Sensibilisation</span>
+          <h4>FPT</h4>
+          <p>Risques routiers distractifs</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-5">
+          <img src="client-fpt.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Sensibilisation</span>
+          <h4>FPT</h4>
+          <p>Session sécurité au travail</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-6">
+          <img src="client-itf-nevers.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Grand public</span>
+          <h4>ITF Nevers</h4>
+          <p>Animation grand public</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-7">
+          <img src="client-caf-allier.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Team building</span>
+          <h4>CSE CAF Allier</h4>
+          <p>Cohésion d'équipe</p>
+        </div>
+      </a>
+
+      <a href="#" class="case-card">
+        <div class="case-thumb thumb-8">
+          <img src="client-pouilly-sancerre.png" alt="" class="client-logo" />
+          <div class="play"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="case-meta">
+          <span class="tag">Course</span>
+          <h4>Pouilly-Sancerre</h4>
+          <p>Animation village arrivée</p>
+        </div>
+      </a>
+
     </div>
   </div>
 </section>
